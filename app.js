@@ -815,15 +815,15 @@ function setProbabilityBars(probabilities) {
 function setPredictionEmpty() {
   elements.predictionPanel.classList.add("empty-state");
   elements.predictionDigit.textContent = "?";
-  elements.predictionLabel.textContent = "Astept desenul tau";
-  elements.predictionConfidence.textContent = "Confidenta: 0%";
+  elements.predictionLabel.textContent = "Waiting for your drawing";
+  elements.predictionConfidence.textContent = "Confidence: 0%";
   normalizedContext.fillStyle = "black";
   normalizedContext.fillRect(0, 0, NORMALIZED_SIZE, NORMALIZED_SIZE);
   setProbabilityBars(new Array(10).fill(0));
   setNetworkState(null);
   setFeatureActivity(state.featureCardsLayer1, new Array(16).fill(0), COLORS.warm);
   setFeatureActivity(state.featureCardsLayer2, new Array(16).fill(0), COLORS.teal);
-  elements.inputStatus.textContent = "Canvas gol";
+  elements.inputStatus.textContent = "Canvas is empty";
 }
 
 function setPredictionResult(result) {
@@ -831,13 +831,13 @@ function setPredictionResult(result) {
   const confidence = result.probabilities[predictedDigit];
   elements.predictionPanel.classList.remove("empty-state");
   elements.predictionDigit.textContent = predictedDigit;
-  elements.predictionLabel.textContent = `Modelul vede cel mai probabil cifra ${predictedDigit}`;
-  elements.predictionConfidence.textContent = `Confidenta: ${Math.round(confidence * 100)}%`;
+  elements.predictionLabel.textContent = `The model most likely sees digit ${predictedDigit}`;
+  elements.predictionConfidence.textContent = `Confidence: ${Math.round(confidence * 100)}%`;
   setProbabilityBars(Array.from(result.probabilities));
   setNetworkState(result);
   setFeatureActivity(state.featureCardsLayer1, Array.from(result.a1), COLORS.warm);
   setFeatureActivity(state.featureCardsLayer2, Array.from(result.a2), COLORS.teal);
-  elements.inputStatus.textContent = "Predictie live";
+  elements.inputStatus.textContent = "Live prediction";
 }
 
 function runPrediction() {
@@ -931,7 +931,7 @@ async function loadSamples() {
     elements.sampleButton.disabled = false;
   } catch (error) {
     elements.sampleButton.disabled = true;
-    elements.sampleButton.textContent = "Exemple indisponibile";
+    elements.sampleButton.textContent = "Samples unavailable";
   }
 }
 
@@ -948,12 +948,12 @@ function attachCanvasEvents() {
 async function loadModel() {
   const response = await fetch("./model/model.json");
   if (!response.ok) {
-    throw new Error("Nu am putut incarca modelul.");
+    throw new Error("Could not load the model.");
   }
   const payload = await response.json();
   state.model = prepareModel(payload);
   state.featureMapsLayer2 = projectLayerTwoFeatures(state.model);
-  elements.modelAccuracy.textContent = `${Math.round(payload.metrics.testAccuracy * 100)}% pe ${payload.metrics.testSamples} exemple`;
+  elements.modelAccuracy.textContent = `${Math.round(payload.metrics.testAccuracy * 100)}% on ${payload.metrics.testSamples} test samples`;
 }
 
 async function initialize() {
@@ -970,10 +970,10 @@ async function initialize() {
     attachCanvasEvents();
     setPredictionEmpty();
   } catch (error) {
-    elements.modelAccuracy.textContent = "Modelul nu s-a incarcat";
-    elements.inputStatus.textContent = "Eroare la initializare";
-    elements.predictionLabel.textContent = "Modelul lipseste";
-    elements.predictionConfidence.textContent = "Verifica fisierele din folderul model/";
+    elements.modelAccuracy.textContent = "Model failed to load";
+    elements.inputStatus.textContent = "Initialization error";
+    elements.predictionLabel.textContent = "Model is missing";
+    elements.predictionConfidence.textContent = "Check the files inside the model/ folder";
     console.error(error);
   }
 }

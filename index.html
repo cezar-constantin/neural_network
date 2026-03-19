@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Neural network</title>
     <meta
       name="description"
-      content="Simulator interactiv pentru recunoasterea cifrelor scrise de mana si vizualizarea activarii unei retele neuronale."
+      content="Interactive simulator for handwritten digit recognition and live neural network activation visualization."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -23,17 +23,17 @@
           <p class="eyebrow">Interactive digit classifier</p>
           <h1>Neural network</h1>
           <p class="hero-text">
-            Deseneaza o cifra, iar simulatorul o transforma intr-o imagine de 28x28 si iti arata, in timp real,
-            cum se aprind neuronii dintr-o retea deja antrenata cu arhitectura <strong>784 → 16 → 16 → 10</strong>.
+            Draw a digit, and the simulator will convert it into a 28x28 image while showing, in real time, how the
+            neurons light up inside a pretrained network with architecture <strong>784 → 16 → 16 → 10</strong>.
           </p>
         </div>
         <div class="hero-badges">
           <div class="metric-chip">
             <span class="metric-label">Model</span>
-            <strong id="model-accuracy">Se incarca...</strong>
+            <strong id="model-accuracy">Loading...</strong>
           </div>
           <div class="metric-chip">
-            <span class="metric-label">Inspiratie</span>
+            <span class="metric-label">Inspiration</span>
             <strong>3Blue1Brown style</strong>
           </div>
         </div>
@@ -44,31 +44,31 @@
           <div class="section-heading">
             <div>
               <p class="section-kicker">1. Input</p>
-              <h2>Deseneaza cifra</h2>
+              <h2>Draw a digit</h2>
             </div>
-            <span class="status-pill" id="input-status">Predictie live</span>
+            <span class="status-pill" id="input-status">Live prediction</span>
           </div>
 
           <div class="draw-stage">
             <div class="canvas-frame">
-              <canvas id="draw-canvas" width="560" height="560" aria-label="Zona de desen"></canvas>
+              <canvas id="draw-canvas" width="560" height="560" aria-label="Drawing area"></canvas>
               <div class="pixel-grid" aria-hidden="true"></div>
             </div>
             <div class="draw-side">
               <div class="mini-preview">
                 <div class="preview-label">
-                  <span>Versiunea 28x28</span>
-                  <strong>aceasta intra in retea</strong>
+                  <span>28x28 version</span>
+                  <strong>this is what the network sees</strong>
                 </div>
-                <canvas id="normalized-canvas" width="28" height="28" aria-label="Input normalizat 28x28"></canvas>
+                <canvas id="normalized-canvas" width="28" height="28" aria-label="Normalized 28x28 input"></canvas>
               </div>
               <div class="controls">
-                <button class="primary-button" id="clear-button" type="button">Sterge</button>
-                <button class="secondary-button" id="sample-button" type="button">Exemplu MNIST</button>
+                <button class="primary-button" id="clear-button" type="button">Clear</button>
+                <button class="secondary-button" id="sample-button" type="button">MNIST sample</button>
               </div>
               <p class="helper-copy">
-                Traseaza cu mouse-ul sau cu degetul. Simulatorul centreaza automat cifra, exact ca un preprocesor de
-                date pentru MNIST.
+                Draw with your mouse or finger. The simulator automatically centers the digit, just like an MNIST-style
+                preprocessing pipeline.
               </p>
             </div>
           </div>
@@ -78,16 +78,16 @@
           <div class="section-heading">
             <div>
               <p class="section-kicker">2. Output</p>
-              <h2>Estimarea modelului</h2>
+              <h2>Model estimate</h2>
             </div>
           </div>
 
           <div class="prediction-header">
             <div class="prediction-digit" id="prediction-digit">?</div>
             <div class="prediction-copy">
-              <p class="confidence-line">Cifra estimata</p>
-              <h3 id="prediction-label">Astept desenul tau</h3>
-              <p class="confidence-line" id="prediction-confidence">Confidenta: 0%</p>
+              <p class="confidence-line">Estimated digit</p>
+              <h3 id="prediction-label">Waiting for your drawing</h3>
+              <p class="confidence-line" id="prediction-confidence">Confidence: 0%</p>
             </div>
           </div>
 
@@ -98,16 +98,16 @@
               <p class="card-kicker">Layer 1</p>
               <h3>Pattern detectors</h3>
               <p>
-                Primul strat invata stroke-uri mici: capete de linie, diagonale, colturi, puncte de start si presiune
-                locala.
+                The first layer learns small stroke patterns: line endings, diagonals, corners, starting points, and
+                local pressure.
               </p>
             </article>
             <article class="explain-card">
               <p class="card-kicker">Layer 2</p>
               <h3>Digit parts</h3>
               <p>
-                Al doilea strat combina pattern-urile in parti mai recognoscibile: bare verticale, bucle, arce,
-                cercuri sau ovale partiale.
+                The second layer combines patterns into more recognizable digit parts: vertical bars, loops, arcs,
+                circles, or partial ovals.
               </p>
             </article>
           </div>
@@ -117,12 +117,12 @@
           <div class="section-heading">
             <div>
               <p class="section-kicker">3. Visualization</p>
-              <h2>Activarea neuronilor</h2>
+              <h2>Neuron activation</h2>
             </div>
           </div>
 
           <div class="network-shell">
-            <svg id="network-svg" viewBox="0 0 1100 680" role="img" aria-label="Vizualizare a retelei neuronale"></svg>
+            <svg id="network-svg" viewBox="0 0 1100 680" role="img" aria-label="Neural network visualization"></svg>
           </div>
         </section>
       </main>
@@ -132,7 +132,7 @@
           <div class="section-heading">
             <div>
               <p class="section-kicker">4. Learned features</p>
-              <h2>Layer 1: stroke-uri si pattern-uri</h2>
+              <h2>Layer 1: strokes and patterns</h2>
             </div>
           </div>
           <div class="feature-grid" id="feature-grid-layer-1"></div>
@@ -142,7 +142,7 @@
           <div class="section-heading">
             <div>
               <p class="section-kicker">5. Learned features</p>
-              <h2>Layer 2: parti de cifre</h2>
+              <h2>Layer 2: digit parts</h2>
             </div>
           </div>
           <div class="feature-grid" id="feature-grid-layer-2"></div>
