@@ -24,7 +24,7 @@
           <h1>Neural network</h1>
           <p class="hero-text">
             Draw a digit, and the simulator will convert it into a 28x28 image while showing, in real time, how the
-            neurons light up inside a pretrained network with architecture <strong>784 → 16 → 16 → 10</strong>.
+            neurons light up inside a pretrained network with architecture <strong>784 -&gt; 16 -&gt; 16 -&gt; 10</strong>.
           </p>
         </div>
         <div class="hero-badges">
@@ -33,119 +33,200 @@
             <strong id="model-accuracy">Loading...</strong>
           </div>
           <div class="metric-chip">
-            <span class="metric-label">Inspiration</span>
-            <strong>3Blue1Brown style</strong>
+            <span class="metric-label">Bibliography</span>
+            <strong>
+              <a class="metric-link" href="https://www.youtube.com/@3blue1brown" target="_blank" rel="noreferrer">
+                https://www.youtube.com/@3blue1brown
+              </a>
+            </strong>
           </div>
         </div>
       </header>
 
-      <main class="dashboard">
-        <section class="card draw-panel">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">1. Input</p>
-              <h2>Draw a digit</h2>
-            </div>
-            <span class="status-pill" id="input-status">Live prediction</span>
-          </div>
+      <section class="tabs card" aria-label="Content tabs">
+        <div class="tab-list" role="tablist">
+          <button
+            class="tab-button is-active"
+            id="tab-button-experience"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="tab-panel-experience"
+            data-tab-target="experience"
+          >
+            Simulator
+          </button>
+          <button
+            class="tab-button"
+            id="tab-button-features"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-panel-features"
+            data-tab-target="features"
+          >
+            Learned features
+          </button>
+        </div>
+      </section>
 
-          <div class="draw-stage">
-            <div class="canvas-frame">
-              <canvas id="draw-canvas" width="560" height="560" aria-label="Drawing area"></canvas>
-              <div class="pixel-grid" aria-hidden="true"></div>
+      <section
+        class="tab-panel is-active"
+        id="tab-panel-experience"
+        role="tabpanel"
+        aria-labelledby="tab-button-experience"
+        data-tab-panel="experience"
+      >
+        <main class="dashboard">
+          <section class="card draw-panel">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">1. Input</p>
+                <h2>Draw a digit</h2>
+              </div>
+              <span class="status-pill" id="input-status">Live prediction</span>
             </div>
-            <div class="draw-side">
-              <div class="mini-preview">
-                <div class="preview-label">
-                  <span>28x28 version</span>
-                  <strong>this is what the network sees</strong>
+
+            <p class="helper-copy">
+              Draw with your mouse or finger. The simulator automatically centers the digit, just like an MNIST-style
+              preprocessing pipeline.
+            </p>
+
+            <div class="draw-stage">
+              <div class="canvas-frame">
+                <canvas id="draw-canvas" width="560" height="560" aria-label="Drawing area"></canvas>
+                <div class="pixel-grid" aria-hidden="true"></div>
+              </div>
+              <div class="draw-side">
+                <div class="mini-preview">
+                  <div class="preview-label">
+                    <span>28x28 version</span>
+                    <strong>this is what the network sees</strong>
+                  </div>
+                  <canvas id="normalized-canvas" width="28" height="28" aria-label="Normalized 28x28 input"></canvas>
                 </div>
-                <canvas id="normalized-canvas" width="28" height="28" aria-label="Normalized 28x28 input"></canvas>
+                <div class="controls">
+                  <button class="primary-button" id="clear-button" type="button">Clear</button>
+                  <button class="secondary-button" id="sample-button" type="button">MNIST sample</button>
+                </div>
               </div>
-              <div class="controls">
-                <button class="primary-button" id="clear-button" type="button">Clear</button>
-                <button class="secondary-button" id="sample-button" type="button">MNIST sample</button>
+            </div>
+          </section>
+
+          <section class="card prediction-panel">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">2. Output</p>
+                <h2>Model estimate</h2>
               </div>
-              <p class="helper-copy">
-                Draw with your mouse or finger. The simulator automatically centers the digit, just like an MNIST-style
-                preprocessing pipeline.
-              </p>
+            </div>
+
+            <div class="prediction-header">
+              <div class="prediction-digit" id="prediction-digit">?</div>
+              <div class="prediction-copy">
+                <p class="confidence-line">Estimated digit</p>
+                <h3 id="prediction-label">Waiting for your drawing</h3>
+                <p class="confidence-line" id="prediction-confidence">Confidence: 0%</p>
+              </div>
+            </div>
+
+            <div class="probability-bars" id="probability-bars" aria-live="polite"></div>
+          </section>
+
+          <section class="card network-panel">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">3. Visualization</p>
+                <h2>Neuron activation</h2>
+              </div>
+            </div>
+
+            <div class="network-shell">
+              <svg id="network-svg" viewBox="0 0 1420 980" role="img" aria-label="Neural network visualization"></svg>
+            </div>
+
+            <div class="explain-grid">
+              <article class="explain-card">
+                <p class="card-kicker">Layer 1</p>
+                <h3>Pattern detectors</h3>
+                <p>
+                  The first hidden layer learns small stroke patterns such as line endings, diagonals, corners, and
+                  local pressure changes.
+                </p>
+              </article>
+              <article class="explain-card">
+                <p class="card-kicker">Layer 2</p>
+                <h3>Digit parts</h3>
+                <p>
+                  The second hidden layer combines those smaller patterns into larger digit parts, including loops,
+                  arcs, circles, bars, and partial ovals.
+                </p>
+              </article>
+            </div>
+          </section>
+        </main>
+      </section>
+
+      <section
+        class="tab-panel"
+        id="tab-panel-features"
+        role="tabpanel"
+        aria-labelledby="tab-button-features"
+        data-tab-panel="features"
+        hidden
+      >
+        <section class="card feature-overview">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Feature maps</p>
+              <h2>How the colors are defined</h2>
+            </div>
+          </div>
+          <p class="feature-overview-copy">
+            Each thumbnail is a weight map. Bright warm orange in Layer 1 and bright teal in Layer 2 indicate strong
+            positive weights. Cool blue indicates strong negative weights. Very dark regions are close to zero, meaning
+            that pixel contributes only weakly to that learned feature.
+          </p>
+          <div class="legend-grid">
+            <div class="legend-item">
+              <span class="legend-swatch legend-layer-1"></span>
+              <span>Layer 1 positive weights use warm orange.</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch legend-layer-2"></span>
+              <span>Layer 2 positive weights use teal.</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch legend-negative"></span>
+              <span>Negative weights are shown in cool blue.</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch legend-neutral"></span>
+              <span>Dark areas are near zero and contribute little.</span>
             </div>
           </div>
         </section>
 
-        <section class="card prediction-panel">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">2. Output</p>
-              <h2>Model estimate</h2>
+        <section class="feature-sections">
+          <section class="card feature-panel">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">4. Learned features</p>
+                <h2>Layer 1: strokes and patterns</h2>
+              </div>
             </div>
-          </div>
+            <div class="feature-grid" id="feature-grid-layer-1"></div>
+          </section>
 
-          <div class="prediction-header">
-            <div class="prediction-digit" id="prediction-digit">?</div>
-            <div class="prediction-copy">
-              <p class="confidence-line">Estimated digit</p>
-              <h3 id="prediction-label">Waiting for your drawing</h3>
-              <p class="confidence-line" id="prediction-confidence">Confidence: 0%</p>
+          <section class="card feature-panel">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">5. Learned features</p>
+                <h2>Layer 2: digit parts</h2>
+              </div>
             </div>
-          </div>
-
-          <div class="probability-bars" id="probability-bars" aria-live="polite"></div>
-
-          <div class="explain-grid">
-            <article class="explain-card">
-              <p class="card-kicker">Layer 1</p>
-              <h3>Pattern detectors</h3>
-              <p>
-                The first layer learns small stroke patterns: line endings, diagonals, corners, starting points, and
-                local pressure.
-              </p>
-            </article>
-            <article class="explain-card">
-              <p class="card-kicker">Layer 2</p>
-              <h3>Digit parts</h3>
-              <p>
-                The second layer combines patterns into more recognizable digit parts: vertical bars, loops, arcs,
-                circles, or partial ovals.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section class="card network-panel">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">3. Visualization</p>
-              <h2>Neuron activation</h2>
-            </div>
-          </div>
-
-          <div class="network-shell">
-            <svg id="network-svg" viewBox="0 0 1100 680" role="img" aria-label="Neural network visualization"></svg>
-          </div>
-        </section>
-      </main>
-
-      <section class="feature-sections">
-        <section class="card feature-panel">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">4. Learned features</p>
-              <h2>Layer 1: strokes and patterns</h2>
-            </div>
-          </div>
-          <div class="feature-grid" id="feature-grid-layer-1"></div>
-        </section>
-
-        <section class="card feature-panel">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">5. Learned features</p>
-              <h2>Layer 2: digit parts</h2>
-            </div>
-          </div>
-          <div class="feature-grid" id="feature-grid-layer-2"></div>
+            <div class="feature-grid" id="feature-grid-layer-2"></div>
+          </section>
         </section>
       </section>
     </div>

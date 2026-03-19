@@ -3,6 +3,12 @@ const SOURCE_SIZE = 560;
 const NORMALIZED_SIZE = 28;
 const FEATURE_THUMBNAIL_SIZE = 84;
 const INPUT_THRESHOLD = 12;
+const INPUT_SIZE = NORMALIZED_SIZE * NORMALIZED_SIZE;
+const HIDDEN_SIZE = 16;
+const OUTPUT_SIZE = 10;
+const MAX_INPUT_CONNECTIONS = 120;
+const INPUT_EDGE_THRESHOLD = 0.055;
+const INPUT_EDGE_MIN_INTENSITY = 0.025;
 
 const COLORS = {
   ink: [23, 34, 43],
@@ -28,19 +34,20 @@ const state = {
   featureCardsLayer2: [],
   network: {
     inputImage: null,
+    inputBars: [],
+    inputToHiddenGroup: null,
     hidden1Nodes: [],
     hidden2Nodes: [],
     outputNodes: [],
-    inputEdges: [],
     hidden12Edges: [],
     hidden23Edges: [],
+    maxAbsW1: 1,
     maxAbsW2: 1,
     maxAbsW3: 1,
   },
 };
 
 const elements = {
-  body: document.body,
   drawCanvas: document.getElementById("draw-canvas"),
   normalizedCanvas: document.getElementById("normalized-canvas"),
   clearButton: document.getElementById("clear-button"),
@@ -55,6 +62,8 @@ const elements = {
   layer2Grid: document.getElementById("feature-grid-layer-2"),
   inputStatus: document.getElementById("input-status"),
   predictionPanel: document.querySelector(".prediction-panel"),
+  tabButtons: Array.from(document.querySelectorAll(".tab-button")),
+  tabPanels: Array.from(document.querySelectorAll(".tab-panel")),
 };
 
 const drawContext = elements.drawCanvas.getContext("2d");
@@ -90,22 +99,22 @@ function relu(value) {
 
 function softmax(values) {
   let max = -Infinity;
-  for (let i = 0; i < values.length; i += 1) {
-    if (values[i] > max) {
-      max = values[i];
+  for (let index = 0; index < values.length; index += 1) {
+    if (values[index] > max) {
+      max = values[index];
     }
   }
 
   const result = new Float32Array(values.length);
   let sum = 0;
-  for (let i = 0; i < values.length; i += 1) {
-    const probability = Math.exp(values[i] - max);
-    result[i] = probability;
+  for (let index = 0; index < values.length; index += 1) {
+    const probability = Math.exp(values[index] - max);
+    result[index] = probability;
     sum += probability;
   }
 
-  for (let i = 0; i < result.length; i += 1) {
-    result[i] /= sum;
+  for (let index = 0; index < result.length; index += 1) {
+    result[index] /= sum;
   }
 
   return result;
@@ -113,9 +122,9 @@ function softmax(values) {
 
 function argmax(values) {
   let index = 0;
-  for (let i = 1; i < values.length; i += 1) {
-    if (values[i] > values[index]) {
-      index = i;
+  for (let cursor = 1; cursor < values.length; cursor += 1) {
+    if (values[cursor] > values[index]) {
+      index = cursor;
     }
   }
   return index;
@@ -140,9 +149,9 @@ function toRgb(color) {
 
 function normalizeLayer(values) {
   let max = 0;
-  for (let i = 0; i < values.length; i += 1) {
-    if (values[i] > max) {
-      max = values[i];
+  for (let index = 0; index < values.length; index += 1) {
+    if (values[index] > max) {
+      max = values[index];
     }
   }
 
@@ -191,7 +200,7 @@ function configureDrawContext() {
 }
 
 function setupProbabilityBars() {
-  for (let digit = 0; digit < 10; digit += 1) {
+  for (let digit = 0; digit < OUTPUT_SIZE; digit += 1) {
     const row = document.createElement("div");
     row.className = "probability-row";
 
@@ -241,7 +250,7 @@ function createFeatureCard(container, label, layerClass) {
 }
 
 function setupFeatureGrids() {
-  for (let index = 0; index < 16; index += 1) {
+  for (let index = 0; index < HIDDEN_SIZE; index += 1) {
     state.featureCardsLayer1.push(
       createFeatureCard(elements.layer1Grid, `Neuron ${String(index + 1).padStart(2, "0")}`, "is-layer-1"),
     );
@@ -254,7 +263,7 @@ function setupFeatureGrids() {
 function createLayerTitle(container, x, title, subtitle) {
   const titleText = createSvgElement("text", {
     x,
-    y: 86,
+    y: 74,
     class: "network-label",
     "text-anchor": "middle",
   });
@@ -262,7 +271,7 @@ function createLayerTitle(container, x, title, subtitle) {
 
   const subtitleText = createSvgElement("text", {
     x,
-    y: 110,
+    y: 98,
     class: "network-subtitle",
     "text-anchor": "middle",
   });
@@ -279,14 +288,14 @@ function createLayerCard(container, x, y, width, height) {
     height,
     rx: 28,
     class: "network-layer-card",
-    fill: "rgba(255,255,255,0.55)",
+    fill: "rgba(255,255,255,0.58)",
     stroke: "rgba(23, 34, 43, 0.12)",
   });
   container.appendChild(card);
   return card;
 }
 
-function createNetworkNode(svg, x, y, radius, label, accent, valueOffset = 44) {
+function createValueNode(container, { x, y, radius, label, accent, valueX }) {
   const group = createSvgElement("g", {});
   const circle = createSvgElement("circle", {
     cx: x,
@@ -300,21 +309,59 @@ function createNetworkNode(svg, x, y, radius, label, accent, valueOffset = 44) {
 
   const text = createSvgElement("text", {
     x,
-    y: y + 1,
+    y,
     class: "network-node-text",
   });
   text.textContent = label;
 
   const value = createSvgElement("text", {
-    x,
-    y: y + valueOffset,
+    x: valueX,
+    y,
     class: "network-node-value",
   });
   value.textContent = "0%";
 
   group.append(circle, text, value);
-  svg.appendChild(group);
-  return { group, circle, value, x, y, radius, accent };
+  container.appendChild(group);
+  return { circle, value, x, y, radius };
+}
+
+function createInputBar(container, { x, y, width, height }) {
+  const rect = createSvgElement("rect", {
+    x,
+    y,
+    width,
+    height,
+    rx: Math.max(height * 0.45, 0.12),
+    class: "network-input-bar",
+    fill: "rgba(211, 214, 218, 0.78)",
+  });
+  container.appendChild(rect);
+  return {
+    rect,
+    x,
+    y,
+    width,
+    height,
+    centerY: y + height / 2,
+  };
+}
+
+function buildCurve(startX, startY, endX, endY) {
+  const controlOffset = (endX - startX) * 0.52;
+  return `M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${endX - controlOffset} ${endY}, ${endX} ${endY}`;
+}
+
+function createConnectionPath(container, startX, startY, endX, endY, stroke, strokeWidth, opacity) {
+  const path = createSvgElement("path", {
+    d: buildCurve(startX, startY, endX, endY),
+    class: "network-edge",
+    stroke,
+    "stroke-width": strokeWidth,
+    opacity,
+  });
+  container.appendChild(path);
+  return path;
 }
 
 function buildNetworkSvg() {
@@ -322,7 +369,13 @@ function buildNetworkSvg() {
   svg.innerHTML = "";
 
   const defs = createSvgElement("defs");
-  const inputFilter = createSvgElement("filter", { id: "input-shadow", x: "-20%", y: "-20%", width: "140%", height: "140%" });
+  const inputFilter = createSvgElement("filter", {
+    id: "input-shadow",
+    x: "-20%",
+    y: "-20%",
+    width: "140%",
+    height: "140%",
+  });
   inputFilter.appendChild(
     createSvgElement("feDropShadow", {
       dx: 0,
@@ -336,27 +389,31 @@ function buildNetworkSvg() {
   svg.appendChild(defs);
 
   const backgroundLayer = createSvgElement("g", {});
-  const edgeLayer = createSvgElement("g", {});
+  const inputEdgeLayer = createSvgElement("g", {});
+  const hiddenEdgeLayer = createSvgElement("g", {});
+  const outputEdgeLayer = createSvgElement("g", {});
   const nodeLayer = createSvgElement("g", {});
   const labelLayer = createSvgElement("g", {});
-  svg.append(backgroundLayer, edgeLayer, nodeLayer, labelLayer);
+  svg.append(backgroundLayer, inputEdgeLayer, hiddenEdgeLayer, outputEdgeLayer, nodeLayer, labelLayer);
 
-  createLayerTitle(labelLayer, 150, "Input", "28x28 grayscale image");
-  createLayerTitle(labelLayer, 390, "Hidden layer 1", "stroke and edge detectors");
-  createLayerTitle(labelLayer, 690, "Hidden layer 2", "bars, loops, arcs and ovals");
-  createLayerTitle(labelLayer, 950, "Output", "digits 0 to 9");
+  createLayerTitle(labelLayer, 174, "Input sketch", "normalized 28x28 canvas");
+  createLayerTitle(labelLayer, 394, "Input layer", "784 pixel activations");
+  createLayerTitle(labelLayer, 608, "Hidden layer 1", "16 neurons, one column");
+  createLayerTitle(labelLayer, 902, "Hidden layer 2", "16 neurons, one column");
+  createLayerTitle(labelLayer, 1218, "Output", "10 digit probabilities");
 
-  createLayerCard(backgroundLayer, 42, 142, 210, 262);
-  createLayerCard(backgroundLayer, 286, 142, 210, 262);
-  createLayerCard(backgroundLayer, 586, 142, 210, 262);
-  createLayerCard(backgroundLayer, 862, 120, 176, 444);
+  createLayerCard(backgroundLayer, 28, 132, 294, 354);
+  createLayerCard(backgroundLayer, 340, 132, 108, 770);
+  createLayerCard(backgroundLayer, 496, 132, 224, 770);
+  createLayerCard(backgroundLayer, 790, 132, 224, 770);
+  createLayerCard(backgroundLayer, 1094, 214, 250, 554);
 
   const inputFrame = createSvgElement("rect", {
-    x: 68,
-    y: 178,
-    width: 158,
-    height: 158,
-    rx: 20,
+    x: 76,
+    y: 182,
+    width: 198,
+    height: 198,
+    rx: 22,
     class: "network-input-frame",
     fill: "#0b161d",
     stroke: "rgba(255,255,255,0.12)",
@@ -364,83 +421,118 @@ function buildNetworkSvg() {
   });
 
   const inputImage = createSvgElement("image", {
-    x: 79,
-    y: 189,
-    width: 136,
-    height: 136,
+    x: 89,
+    y: 195,
+    width: 172,
+    height: 172,
     href: "",
     preserveAspectRatio: "none",
   });
   inputImage.style.imageRendering = "pixelated";
 
   const inputCaption = createSvgElement("text", {
-    x: 147,
-    y: 370,
+    x: 175,
+    y: 420,
     class: "network-subtitle",
     "text-anchor": "middle",
   });
-  inputCaption.textContent = "normalized before inference";
-
+  inputCaption.textContent = "flattened into 784 rows";
   nodeLayer.append(inputFrame, inputImage, inputCaption);
   state.network.inputImage = inputImage;
 
-  const hidden1Positions = [];
-  const hidden2Positions = [];
-  const hiddenStartX = 338;
-  const hidden2StartX = 638;
-  const hiddenStartY = 190;
-  const gapX = 54;
-  const gapY = 54;
+  const inputTop = 172;
+  const inputHeight = 720;
+  const inputStep = inputHeight / INPUT_SIZE;
+  const barWidth = 28;
+  const barHeight = Math.max(inputStep * 0.72, 0.18);
+  const barX = 380;
+  state.network.inputBars = [];
 
-  for (let row = 0; row < 4; row += 1) {
-    for (let col = 0; col < 4; col += 1) {
-      hidden1Positions.push({ x: hiddenStartX + col * gapX, y: hiddenStartY + row * gapY });
-      hidden2Positions.push({ x: hidden2StartX + col * gapX, y: hiddenStartY + row * gapY });
-    }
+  for (let index = 0; index < INPUT_SIZE; index += 1) {
+    const barY = inputTop + index * inputStep;
+    state.network.inputBars.push(
+      createInputBar(nodeLayer, {
+        x: barX,
+        y: barY,
+        width: barWidth,
+        height: barHeight,
+      }),
+    );
   }
 
-  state.network.hidden1Nodes = hidden1Positions.map((position, index) =>
-    createNetworkNode(nodeLayer, position.x, position.y, 19, index + 1, COLORS.sun),
-  );
-  state.network.hidden2Nodes = hidden2Positions.map((position, index) =>
-    createNetworkNode(nodeLayer, position.x, position.y, 19, index + 1, COLORS.teal),
-  );
-
-  const outputStartY = 150;
-  const outputGapY = 38;
-  state.network.outputNodes = Array.from({ length: 10 }, (_, index) =>
-    createNetworkNode(nodeLayer, 950, outputStartY + index * outputGapY, 19, index, COLORS.output, 36),
-  );
-
-  const inputAnchorX = 226;
-  const inputAnchorY = 257;
-
-  state.network.inputEdges = state.network.hidden1Nodes.map((node) => {
-    const line = createSvgElement("path", {
-      d: `M ${inputAnchorX} ${inputAnchorY} C 268 ${inputAnchorY}, 292 ${node.y}, ${node.x - node.radius} ${node.y}`,
-      class: "network-edge",
-      stroke: "rgba(242, 160, 61, 0.14)",
-      "stroke-width": 2.4,
-      opacity: 0.28,
-    });
-    edgeLayer.appendChild(line);
-    return line;
+  const firstIndex = createSvgElement("text", {
+    x: 394,
+    y: 164,
+    class: "network-index-label",
+    "text-anchor": "middle",
   });
+  firstIndex.textContent = "1";
 
+  const lastIndex = createSvgElement("text", {
+    x: 394,
+    y: 915,
+    class: "network-index-label",
+    "text-anchor": "middle",
+  });
+  lastIndex.textContent = "784";
+  labelLayer.append(firstIndex, lastIndex);
+
+  const hiddenTop = 184;
+  const hiddenGap = 43;
+  const hiddenRadius = 16;
+  state.network.hidden1Nodes = Array.from({ length: HIDDEN_SIZE }, (_, index) =>
+    createValueNode(nodeLayer, {
+      x: 586,
+      y: hiddenTop + index * hiddenGap,
+      radius: hiddenRadius,
+      label: index + 1,
+      accent: COLORS.sun,
+      valueX: 626,
+    }),
+  );
+  state.network.hidden2Nodes = Array.from({ length: HIDDEN_SIZE }, (_, index) =>
+    createValueNode(nodeLayer, {
+      x: 880,
+      y: hiddenTop + index * hiddenGap,
+      radius: hiddenRadius,
+      label: index + 1,
+      accent: COLORS.teal,
+      valueX: 920,
+    }),
+  );
+
+  const outputTop = 282;
+  const outputGap = 48;
+  const outputRadius = 16;
+  state.network.outputNodes = Array.from({ length: OUTPUT_SIZE }, (_, index) =>
+    createValueNode(nodeLayer, {
+      x: 1182,
+      y: outputTop + index * outputGap,
+      radius: outputRadius,
+      label: index,
+      accent: COLORS.output,
+      valueX: 1224,
+    }),
+  );
+
+  state.network.inputToHiddenGroup = inputEdgeLayer;
   state.network.hidden12Edges = [];
-  for (let target = 0; target < state.network.hidden2Nodes.length; target += 1) {
-    for (let source = 0; source < state.network.hidden1Nodes.length; source += 1) {
+  state.network.hidden23Edges = [];
+
+  for (let target = 0; target < HIDDEN_SIZE; target += 1) {
+    for (let source = 0; source < HIDDEN_SIZE; source += 1) {
       const start = state.network.hidden1Nodes[source];
       const end = state.network.hidden2Nodes[target];
-      const controlX = (start.x + end.x) / 2;
-      const path = createSvgElement("path", {
-        d: `M ${start.x + start.radius} ${start.y} C ${controlX} ${start.y}, ${controlX} ${end.y}, ${end.x - end.radius} ${end.y}`,
-        class: "network-edge",
-        stroke: "rgba(23, 34, 43, 0.07)",
-        "stroke-width": 1.1,
-        opacity: 0.3,
-      });
-      edgeLayer.appendChild(path);
+      const path = createConnectionPath(
+        hiddenEdgeLayer,
+        start.x + start.radius,
+        start.y,
+        end.x - end.radius,
+        end.y,
+        "rgba(23, 34, 43, 0.08)",
+        1,
+        0.22,
+      );
       state.network.hidden12Edges.push({
         path,
         source,
@@ -450,20 +542,20 @@ function buildNetworkSvg() {
     }
   }
 
-  state.network.hidden23Edges = [];
-  for (let target = 0; target < state.network.outputNodes.length; target += 1) {
-    for (let source = 0; source < state.network.hidden2Nodes.length; source += 1) {
+  for (let target = 0; target < OUTPUT_SIZE; target += 1) {
+    for (let source = 0; source < HIDDEN_SIZE; source += 1) {
       const start = state.network.hidden2Nodes[source];
       const end = state.network.outputNodes[target];
-      const controlX = (start.x + end.x) / 2;
-      const path = createSvgElement("path", {
-        d: `M ${start.x + start.radius} ${start.y} C ${controlX} ${start.y}, ${controlX} ${end.y}, ${end.x - end.radius} ${end.y}`,
-        class: "network-edge",
-        stroke: "rgba(23, 34, 43, 0.07)",
-        "stroke-width": 1.1,
-        opacity: 0.3,
-      });
-      edgeLayer.appendChild(path);
+      const path = createConnectionPath(
+        outputEdgeLayer,
+        start.x + start.radius,
+        start.y,
+        end.x - end.radius,
+        end.y,
+        "rgba(23, 34, 43, 0.08)",
+        1,
+        0.22,
+      );
       state.network.hidden23Edges.push({
         path,
         source,
@@ -473,14 +565,9 @@ function buildNetworkSvg() {
     }
   }
 
-  state.network.maxAbsW2 = Math.max(
-    ...state.network.hidden12Edges.map((edge) => Math.abs(edge.weight)),
-    0.0001,
-  );
-  state.network.maxAbsW3 = Math.max(
-    ...state.network.hidden23Edges.map((edge) => Math.abs(edge.weight)),
-    0.0001,
-  );
+  state.network.maxAbsW1 = Math.max(...state.model.weights.w1.flatMap((row) => Array.from(row, Math.abs)), 0.0001);
+  state.network.maxAbsW2 = Math.max(...state.network.hidden12Edges.map((edge) => Math.abs(edge.weight)), 0.0001);
+  state.network.maxAbsW3 = Math.max(...state.network.hidden23Edges.map((edge) => Math.abs(edge.weight)), 0.0001);
 }
 
 function drawHeatmap(canvas, values, accent) {
@@ -492,19 +579,19 @@ function drawHeatmap(canvas, values, accent) {
   const imageData = pixelContext.createImageData(NORMALIZED_SIZE, NORMALIZED_SIZE);
 
   let maxAbs = 0;
-  for (let i = 0; i < values.length; i += 1) {
-    const absValue = Math.abs(values[i]);
+  for (let index = 0; index < values.length; index += 1) {
+    const absValue = Math.abs(values[index]);
     if (absValue > maxAbs) {
       maxAbs = absValue;
     }
   }
   maxAbs = Math.max(maxAbs, 1e-6);
 
-  for (let i = 0; i < values.length; i += 1) {
-    const value = values[i];
+  for (let index = 0; index < values.length; index += 1) {
+    const value = values[index];
     const amount = Math.pow(Math.abs(value) / maxAbs, 0.72);
     const color = mixColor(COLORS.bgDark, value >= 0 ? accent : COLORS.cool, amount);
-    const offset = i * 4;
+    const offset = index * 4;
     imageData.data[offset] = color[0];
     imageData.data[offset + 1] = color[1];
     imageData.data[offset + 2] = color[2];
@@ -519,7 +606,7 @@ function drawHeatmap(canvas, values, accent) {
 
 function projectLayerTwoFeatures(model) {
   return model.weights.w2.map((row) => {
-    const composite = new Float32Array(NORMALIZED_SIZE * NORMALIZED_SIZE);
+    const composite = new Float32Array(INPUT_SIZE);
     for (let source = 0; source < row.length; source += 1) {
       const weight = row[source];
       const sourceWeights = model.weights.w1[source];
@@ -551,55 +638,107 @@ function setFeatureActivity(cards, activations, accent) {
 }
 
 function setNodeVisual(node, intensity, accent, valueText) {
-  const fill = mixColor(COLORS.neutral, accent, clamp(0.12 + intensity * 0.88, 0, 1));
+  const fill = mixColor(COLORS.neutral, accent, clamp(0.14 + intensity * 0.86, 0, 1));
   node.circle.setAttribute("fill", toRgb(fill));
   node.circle.setAttribute("stroke", toRgba(accent, 0.22 + intensity * 0.52));
-  node.circle.setAttribute("r", (node.radius * (1 + intensity * 0.16)).toFixed(2));
+  node.circle.setAttribute("r", (node.radius * (1 + intensity * 0.12)).toFixed(2));
   node.value.textContent = valueText;
 }
 
-function updateNetworkEdges(hidden1Norm, hidden2Norm, probabilities) {
-  state.network.inputEdges.forEach((path, index) => {
-    const intensity = hidden1Norm[index];
-    path.setAttribute("stroke", toRgba(COLORS.sun, 0.12 + intensity * 0.48));
-    path.setAttribute("stroke-width", (1.6 + intensity * 2.6).toFixed(2));
-    path.setAttribute("opacity", (0.18 + intensity * 0.82).toFixed(3));
-  });
+function setInputBarVisual(bar, intensity) {
+  const fill = mixColor(COLORS.neutral, COLORS.sun, clamp(0.08 + intensity * 0.92, 0, 1));
+  bar.rect.setAttribute("fill", toRgb(fill));
+  bar.rect.setAttribute("opacity", (0.16 + intensity * 0.84).toFixed(3));
+}
 
-  state.network.hidden12Edges.forEach((edge) => {
-    const strength = Math.abs(edge.weight) / state.network.maxAbsW2;
-    const intensity = hidden1Norm[edge.source] * hidden2Norm[edge.target] * Math.pow(strength, 0.75);
-    const color = edge.weight >= 0 ? COLORS.warm : COLORS.cool;
-    edge.path.setAttribute("stroke", toRgba(color, 0.04 + intensity * 0.88));
-    edge.path.setAttribute("stroke-width", (0.7 + intensity * 2.2).toFixed(2));
-    edge.path.setAttribute("opacity", (0.12 + intensity * 0.88).toFixed(3));
-  });
+function getActiveInputRows(inputValues) {
+  const active = [];
+  for (let index = 0; index < inputValues.length; index += 1) {
+    const value = inputValues[index];
+    if (value > INPUT_EDGE_THRESHOLD) {
+      active.push({ index, value });
+    }
+  }
+  active.sort((left, right) => right.value - left.value);
+  return active.slice(0, MAX_INPUT_CONNECTIONS);
+}
 
-  state.network.hidden23Edges.forEach((edge) => {
-    const strength = Math.abs(edge.weight) / state.network.maxAbsW3;
-    const intensity = hidden2Norm[edge.source] * probabilities[edge.target] * Math.pow(strength, 0.75);
-    const color = edge.weight >= 0 ? COLORS.teal : COLORS.cool;
-    edge.path.setAttribute("stroke", toRgba(color, 0.05 + intensity * 0.9));
-    edge.path.setAttribute("stroke-width", (0.7 + intensity * 2.5).toFixed(2));
-    edge.path.setAttribute("opacity", (0.12 + intensity * 0.88).toFixed(3));
+function renderInputToHiddenEdges(inputValues, hidden1Norm) {
+  const group = state.network.inputToHiddenGroup;
+  group.replaceChildren();
+
+  const activeInputs = getActiveInputRows(inputValues);
+  const fragment = document.createDocumentFragment();
+
+  for (const activeInput of activeInputs) {
+    const start = state.network.inputBars[activeInput.index];
+    for (let target = 0; target < HIDDEN_SIZE; target += 1) {
+      const weight = state.model.weights.w1[target][activeInput.index];
+      const strength = (Math.abs(weight) / state.network.maxAbsW1) * activeInput.value * hidden1Norm[target];
+      if (strength < INPUT_EDGE_MIN_INTENSITY) {
+        continue;
+      }
+
+      const end = state.network.hidden1Nodes[target];
+      const color = weight >= 0 ? COLORS.warm : COLORS.cool;
+      const path = createSvgElement("path", {
+        d: buildCurve(start.x + start.width, start.centerY, end.x - end.radius, end.y),
+        class: "network-edge",
+        stroke: toRgba(color, 0.05 + strength * 0.88),
+        "stroke-width": (0.35 + strength * 1.7).toFixed(2),
+        opacity: (0.14 + strength * 0.86).toFixed(3),
+      });
+      fragment.appendChild(path);
+    }
+  }
+
+  group.appendChild(fragment);
+}
+
+function updateWeightedEdges(edges, sourceNorm, targetNorm, maxWeight, positiveColor) {
+  edges.forEach((edge) => {
+    const strength = Math.abs(edge.weight) / maxWeight;
+    const intensity = sourceNorm[edge.source] * targetNorm[edge.target] * Math.pow(strength, 0.75);
+    const color = edge.weight >= 0 ? positiveColor : COLORS.cool;
+    edge.path.setAttribute("stroke", toRgba(color, 0.04 + intensity * 0.9));
+    edge.path.setAttribute("stroke-width", (0.7 + intensity * 2.25).toFixed(2));
+    edge.path.setAttribute("opacity", (0.1 + intensity * 0.9).toFixed(3));
   });
 }
 
 function setNetworkState(result) {
   if (!result) {
+    state.network.inputBars.forEach((bar) => setInputBarVisual(bar, 0));
     state.network.hidden1Nodes.forEach((node) => setNodeVisual(node, 0, COLORS.sun, "0%"));
     state.network.hidden2Nodes.forEach((node) => setNodeVisual(node, 0, COLORS.teal, "0%"));
     state.network.outputNodes.forEach((node) => setNodeVisual(node, 0, COLORS.output, "0%"));
-    updateNetworkEdges(new Array(16).fill(0), new Array(16).fill(0), new Array(10).fill(0));
+    renderInputToHiddenEdges(new Array(INPUT_SIZE).fill(0), new Array(HIDDEN_SIZE).fill(0));
+    updateWeightedEdges(
+      state.network.hidden12Edges,
+      new Array(HIDDEN_SIZE).fill(0),
+      new Array(HIDDEN_SIZE).fill(0),
+      state.network.maxAbsW2,
+      COLORS.warm,
+    );
+    updateWeightedEdges(
+      state.network.hidden23Edges,
+      new Array(HIDDEN_SIZE).fill(0),
+      new Array(OUTPUT_SIZE).fill(0),
+      state.network.maxAbsW3,
+      COLORS.teal,
+    );
     if (state.network.inputImage) {
       state.network.inputImage.setAttribute("href", "");
     }
     return;
   }
 
+  const inputNorm = Array.from(result.input);
   const hidden1Norm = normalizeLayer(result.a1);
   const hidden2Norm = normalizeLayer(result.a2);
+  const probabilities = Array.from(result.probabilities);
 
+  state.network.inputBars.forEach((bar, index) => setInputBarVisual(bar, inputNorm[index]));
   state.network.hidden1Nodes.forEach((node, index) =>
     setNodeVisual(node, hidden1Norm[index], COLORS.sun, `${Math.round(hidden1Norm[index] * 100)}%`),
   );
@@ -607,19 +746,21 @@ function setNetworkState(result) {
     setNodeVisual(node, hidden2Norm[index], COLORS.teal, `${Math.round(hidden2Norm[index] * 100)}%`),
   );
   state.network.outputNodes.forEach((node, index) =>
-    setNodeVisual(node, result.probabilities[index], COLORS.output, `${Math.round(result.probabilities[index] * 100)}%`),
+    setNodeVisual(node, probabilities[index], COLORS.output, `${Math.round(probabilities[index] * 100)}%`),
   );
 
-  updateNetworkEdges(hidden1Norm, hidden2Norm, Array.from(result.probabilities));
+  renderInputToHiddenEdges(inputNorm, hidden1Norm);
+  updateWeightedEdges(state.network.hidden12Edges, hidden1Norm, hidden2Norm, state.network.maxAbsW2, COLORS.warm);
+  updateWeightedEdges(state.network.hidden23Edges, hidden2Norm, probabilities, state.network.maxAbsW3, COLORS.teal);
   state.network.inputImage.setAttribute("href", centeredCanvas.toDataURL("image/png"));
 }
 
 function forwardPass(model, input) {
   const { w1, b1, w2, b2, w3, b3 } = model.weights;
 
-  const z1 = new Float32Array(16);
-  const a1 = new Float32Array(16);
-  for (let neuron = 0; neuron < 16; neuron += 1) {
+  const z1 = new Float32Array(HIDDEN_SIZE);
+  const a1 = new Float32Array(HIDDEN_SIZE);
+  for (let neuron = 0; neuron < HIDDEN_SIZE; neuron += 1) {
     let sum = b1[neuron];
     const weights = w1[neuron];
     for (let pixel = 0; pixel < input.length; pixel += 1) {
@@ -629,9 +770,9 @@ function forwardPass(model, input) {
     a1[neuron] = relu(sum);
   }
 
-  const z2 = new Float32Array(16);
-  const a2 = new Float32Array(16);
-  for (let neuron = 0; neuron < 16; neuron += 1) {
+  const z2 = new Float32Array(HIDDEN_SIZE);
+  const a2 = new Float32Array(HIDDEN_SIZE);
+  for (let neuron = 0; neuron < HIDDEN_SIZE; neuron += 1) {
     let sum = b2[neuron];
     const weights = w2[neuron];
     for (let source = 0; source < a1.length; source += 1) {
@@ -641,8 +782,8 @@ function forwardPass(model, input) {
     a2[neuron] = relu(sum);
   }
 
-  const z3 = new Float32Array(10);
-  for (let neuron = 0; neuron < 10; neuron += 1) {
+  const z3 = new Float32Array(OUTPUT_SIZE);
+  for (let neuron = 0; neuron < OUTPUT_SIZE; neuron += 1) {
     let sum = b3[neuron];
     const weights = w3[neuron];
     for (let source = 0; source < a2.length; source += 1) {
@@ -652,7 +793,7 @@ function forwardPass(model, input) {
   }
 
   const probabilities = softmax(z3);
-  return { z1, a1, z2, a2, z3, probabilities };
+  return { input, z1, a1, z2, a2, z3, probabilities };
 }
 
 function getPointerPosition(event) {
@@ -682,6 +823,7 @@ function queuePrediction() {
   if (state.predictionQueued) {
     return;
   }
+
   state.predictionQueued = true;
   requestAnimationFrame(() => {
     state.predictionQueued = false;
@@ -744,7 +886,7 @@ function centerNormalizedDigit() {
   centeredContext.fillRect(0, 0, NORMALIZED_SIZE, NORMALIZED_SIZE);
 
   if (mass <= 1e-9) {
-    return new Float32Array(NORMALIZED_SIZE * NORMALIZED_SIZE);
+    return new Float32Array(INPUT_SIZE);
   }
 
   const shiftX = Math.round(13.5 - centerX / mass);
@@ -752,7 +894,7 @@ function centerNormalizedDigit() {
   centeredContext.drawImage(scaleCanvas, shiftX, shiftY);
 
   const centeredImage = centeredContext.getImageData(0, 0, NORMALIZED_SIZE, NORMALIZED_SIZE);
-  const input = new Float32Array(NORMALIZED_SIZE * NORMALIZED_SIZE);
+  const input = new Float32Array(INPUT_SIZE);
 
   for (let index = 0; index < input.length; index += 1) {
     const intensity = centeredImage.data[index * 4] / 255;
@@ -776,7 +918,7 @@ function preprocessDrawing() {
     centeredContext.fillRect(0, 0, NORMALIZED_SIZE, NORMALIZED_SIZE);
     normalizedContext.fillStyle = "black";
     normalizedContext.fillRect(0, 0, NORMALIZED_SIZE, NORMALIZED_SIZE);
-    return { input: new Float32Array(NORMALIZED_SIZE * NORMALIZED_SIZE), empty: true };
+    return { input: new Float32Array(INPUT_SIZE), empty: true };
   }
 
   const targetScale = 20 / Math.max(bounds.width, bounds.height);
@@ -819,10 +961,10 @@ function setPredictionEmpty() {
   elements.predictionConfidence.textContent = "Confidence: 0%";
   normalizedContext.fillStyle = "black";
   normalizedContext.fillRect(0, 0, NORMALIZED_SIZE, NORMALIZED_SIZE);
-  setProbabilityBars(new Array(10).fill(0));
+  setProbabilityBars(new Array(OUTPUT_SIZE).fill(0));
   setNetworkState(null);
-  setFeatureActivity(state.featureCardsLayer1, new Array(16).fill(0), COLORS.warm);
-  setFeatureActivity(state.featureCardsLayer2, new Array(16).fill(0), COLORS.teal);
+  setFeatureActivity(state.featureCardsLayer1, new Array(HIDDEN_SIZE).fill(0), COLORS.warm);
+  setFeatureActivity(state.featureCardsLayer2, new Array(HIDDEN_SIZE).fill(0), COLORS.teal);
   elements.inputStatus.textContent = "Canvas is empty";
 }
 
@@ -897,12 +1039,12 @@ function renderSample(sample) {
   sampleContext.fillStyle = "black";
   sampleContext.fillRect(0, 0, NORMALIZED_SIZE, NORMALIZED_SIZE);
   const sampleImage = sampleContext.createImageData(NORMALIZED_SIZE, NORMALIZED_SIZE);
-  for (let i = 0; i < sample.pixels.length; i += 1) {
-    const value = Math.round(sample.pixels[i] * 255);
-    sampleImage.data[i * 4] = value;
-    sampleImage.data[i * 4 + 1] = value;
-    sampleImage.data[i * 4 + 2] = value;
-    sampleImage.data[i * 4 + 3] = 255;
+  for (let index = 0; index < sample.pixels.length; index += 1) {
+    const value = Math.round(sample.pixels[index] * 255);
+    sampleImage.data[index * 4] = value;
+    sampleImage.data[index * 4 + 1] = value;
+    sampleImage.data[index * 4 + 2] = value;
+    sampleImage.data[index * 4 + 3] = 255;
   }
   sampleContext.putImageData(sampleImage, 0, 0);
 
@@ -926,13 +1068,30 @@ async function loadSamples() {
     if (!response.ok) {
       throw new Error("Examples unavailable");
     }
-    const samples = await response.json();
-    state.samples = samples;
+    state.samples = await response.json();
     elements.sampleButton.disabled = false;
   } catch (error) {
     elements.sampleButton.disabled = true;
     elements.sampleButton.textContent = "Samples unavailable";
   }
+}
+
+function setupTabs() {
+  elements.tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.tabTarget;
+      elements.tabButtons.forEach((candidate) => {
+        const isActive = candidate === button;
+        candidate.classList.toggle("is-active", isActive);
+        candidate.setAttribute("aria-selected", String(isActive));
+      });
+      elements.tabPanels.forEach((panel) => {
+        const isActive = panel.dataset.tabPanel === target;
+        panel.classList.toggle("is-active", isActive);
+        panel.hidden = !isActive;
+      });
+    });
+  });
 }
 
 function attachCanvasEvents() {
@@ -959,6 +1118,7 @@ async function loadModel() {
 async function initialize() {
   setupProbabilityBars();
   setupFeatureGrids();
+  setupTabs();
   configureDrawContext();
   clearSourceCanvas();
 
