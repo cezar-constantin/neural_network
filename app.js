@@ -9,10 +9,6 @@ const OUTPUT_SIZE = 10;
 const MAX_INPUT_CONNECTIONS = 120;
 const INPUT_EDGE_THRESHOLD = 0.055;
 const INPUT_EDGE_MIN_INTENSITY = 0.025;
-const MIN_NETWORK_ZOOM = 1;
-const MAX_NETWORK_ZOOM = 2.4;
-const NETWORK_ZOOM_STEP = 0.2;
-
 const COLORS = {
   ink: [23, 37, 90],
   muted: [92, 103, 136],
@@ -62,15 +58,11 @@ const elements = {
   modelAccuracy: document.getElementById("model-accuracy"),
   networkSvg: document.getElementById("network-svg"),
   networkVisualFrame: document.getElementById("network-visual-frame"),
+  chartExpanderButton: document.getElementById("chart-expander-button"),
   layer1Grid: document.getElementById("feature-grid-layer-1"),
   layer2Grid: document.getElementById("feature-grid-layer-2"),
   inputStatus: document.getElementById("input-status"),
   outputSummaryCard: document.getElementById("output-summary-card"),
-  zoomOutButton: document.getElementById("zoom-out-button"),
-  zoomInButton: document.getElementById("zoom-in-button"),
-  zoomResetButton: document.getElementById("zoom-reset-button"),
-  zoomRange: document.getElementById("zoom-range"),
-  zoomValue: document.getElementById("zoom-value"),
   tabButtons: Array.from(document.querySelectorAll(".tab-button")),
   tabPanels: Array.from(document.querySelectorAll(".tab-panel")),
 };
@@ -963,16 +955,15 @@ function setProbabilityBars(probabilities) {
   });
 }
 
-function setNetworkZoom(nextZoom) {
-  const zoom = clamp(nextZoom, MIN_NETWORK_ZOOM, MAX_NETWORK_ZOOM);
-  const percentage = Math.round(zoom * 100);
-
-  elements.networkVisualFrame.style.width = `${percentage}%`;
-  elements.zoomRange.value = String(percentage);
-  elements.zoomValue.textContent = `${percentage}%`;
-  elements.zoomOutButton.disabled = zoom <= MIN_NETWORK_ZOOM + 1e-9;
-  elements.zoomInButton.disabled = zoom >= MAX_NETWORK_ZOOM - 1e-9;
-  elements.zoomResetButton.disabled = Math.abs(zoom - 1) < 1e-9;
+function setChartExpanded(expanded) {
+  elements.networkVisualFrame.classList.toggle("is-expanded", expanded);
+  document.body.classList.toggle("chart-expanded", expanded);
+  elements.chartExpanderButton.textContent = expanded ? "Close full page" : "Expand chart";
+  elements.chartExpanderButton.setAttribute("aria-expanded", String(expanded));
+  elements.chartExpanderButton.setAttribute(
+    "aria-label",
+    expanded ? "Close full page chart" : "Expand chart to full page",
+  );
 }
 
 function setPredictionEmpty() {
@@ -1100,6 +1091,7 @@ async function loadSamples() {
 function setupTabs() {
   elements.tabButtons.forEach((button) => {
     button.addEventListener("click", () => {
+      setChartExpanded(false);
       const target = button.dataset.tabTarget;
       elements.tabButtons.forEach((candidate) => {
         const isActive = candidate === button;
@@ -1115,26 +1107,17 @@ function setupTabs() {
   });
 }
 
-function setupNetworkZoomControls() {
-  elements.zoomOutButton.addEventListener("click", () => {
-    const nextZoom = Number(elements.zoomRange.value) / 100 - NETWORK_ZOOM_STEP;
-    setNetworkZoom(nextZoom);
+function setupChartExpander() {
+  elements.chartExpanderButton.addEventListener("click", () => {
+    const shouldExpand = !elements.networkVisualFrame.classList.contains("is-expanded");
+    setChartExpanded(shouldExpand);
   });
 
-  elements.zoomInButton.addEventListener("click", () => {
-    const nextZoom = Number(elements.zoomRange.value) / 100 + NETWORK_ZOOM_STEP;
-    setNetworkZoom(nextZoom);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && elements.networkVisualFrame.classList.contains("is-expanded")) {
+      setChartExpanded(false);
+    }
   });
-
-  elements.zoomResetButton.addEventListener("click", () => {
-    setNetworkZoom(1);
-  });
-
-  elements.zoomRange.addEventListener("input", () => {
-    setNetworkZoom(Number(elements.zoomRange.value) / 100);
-  });
-
-  setNetworkZoom(1);
 }
 
 function attachCanvasEvents() {
@@ -1162,7 +1145,7 @@ async function initialize() {
   setupProbabilityBars();
   setupFeatureGrids();
   setupTabs();
-  setupNetworkZoomControls();
+  setupChartExpander();
   configureDrawContext();
   clearSourceCanvas();
 
