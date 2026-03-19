@@ -543,19 +543,19 @@ body::before {
 }
 
 .legend-layer-1 {
-  background: linear-gradient(90deg, var(--orange-deep), var(--orange));
+  background: linear-gradient(90deg, var(--lime-deep), var(--lime));
 }
 
 .legend-layer-2 {
-  background: linear-gradient(90deg, var(--cyan-deep), var(--cyan));
+  background: linear-gradient(90deg, #5f7c18, var(--lime-deep));
 }
 
 .legend-negative {
-  background: linear-gradient(90deg, var(--blue-deep), var(--blue));
+  background: linear-gradient(90deg, var(--orange-deep), var(--orange));
 }
 
 .legend-neutral {
-  background: linear-gradient(90deg, #5e6479, #c9d0ea);
+  background: linear-gradient(90deg, #000000, #202020);
 }
 
 .feature-sections {
@@ -584,14 +584,14 @@ body::before {
     border-color 180ms ease;
   box-shadow:
     0 8px 22px rgba(13, 26, 33, 0.06),
-    0 0 calc(22px + var(--activation) * 22px) rgba(255, 90, 10, calc(0.12 + var(--activation) * 0.16));
+    0 0 calc(22px + var(--activation) * 22px) rgba(165, 214, 50, calc(0.12 + var(--activation) * 0.16));
   transform: translateY(calc(var(--activation) * -3px));
 }
 
 .feature-card.is-layer-2 {
   box-shadow:
     0 8px 22px rgba(13, 26, 33, 0.06),
-    0 0 calc(22px + var(--activation) * 22px) rgba(79, 185, 209, calc(0.12 + var(--activation) * 0.16));
+    0 0 calc(22px + var(--activation) * 22px) rgba(126, 165, 31, calc(0.12 + var(--activation) * 0.16));
 }
 
 .feature-card canvas {
@@ -599,7 +599,7 @@ body::before {
   aspect-ratio: 1;
   image-rendering: pixelated;
   border-radius: 16px;
-  background: rgba(21, 42, 126, 0.98);
+  background: rgba(10, 10, 10, 0.98);
 }
 
 .feature-card-header {

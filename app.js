@@ -13,11 +13,11 @@ const INPUT_EDGE_MIN_INTENSITY = 0.025;
 const COLORS = {
   ink: [23, 37, 90],
   muted: [92, 103, 136],
-  bgDark: [21, 42, 126],
-  warm: [255, 90, 10],
+  bgDark: [10, 10, 10],
+  warm: [165, 214, 50],
   sun: [255, 200, 77],
-  teal: [79, 185, 209],
-  cool: [26, 53, 168],
+  teal: [126, 165, 31],
+  cool: [255, 90, 10],
   output: [197, 16, 73],
   neutral: [215, 223, 245],
 };
@@ -486,7 +486,7 @@ function buildNetworkSvg() {
       y: hiddenTop + index * hiddenGap,
       radius: hiddenRadius,
       label: index + 1,
-      accent: COLORS.sun,
+      accent: COLORS.warm,
       valueX: 626,
     }),
   );
@@ -709,7 +709,7 @@ function updateWeightedEdges(edges, sourceNorm, targetNorm, maxWeight, positiveC
 function setNetworkState(result) {
   if (!result) {
     state.network.inputBars.forEach((bar) => setInputBarVisual(bar, 0));
-    state.network.hidden1Nodes.forEach((node) => setNodeVisual(node, 0, COLORS.sun, "0%"));
+    state.network.hidden1Nodes.forEach((node) => setNodeVisual(node, 0, COLORS.warm, "0%"));
     state.network.hidden2Nodes.forEach((node) => setNodeVisual(node, 0, COLORS.teal, "0%"));
     state.network.outputNodes.forEach((node) => setNodeVisual(node, 0, COLORS.output, "0%"));
     renderInputToHiddenEdges(new Array(INPUT_SIZE).fill(0), new Array(HIDDEN_SIZE).fill(0));
@@ -740,7 +740,7 @@ function setNetworkState(result) {
 
   state.network.inputBars.forEach((bar, index) => setInputBarVisual(bar, inputNorm[index]));
   state.network.hidden1Nodes.forEach((node, index) =>
-    setNodeVisual(node, hidden1Norm[index], COLORS.sun, `${Math.round(hidden1Norm[index] * 100)}%`),
+    setNodeVisual(node, hidden1Norm[index], COLORS.warm, `${Math.round(hidden1Norm[index] * 100)}%`),
   );
   state.network.hidden2Nodes.forEach((node, index) =>
     setNodeVisual(node, hidden2Norm[index], COLORS.teal, `${Math.round(hidden2Norm[index] * 100)}%`),
