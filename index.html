@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neural network</title>
+    <meta
+      name="description"
+      content="Simulator interactiv pentru recunoasterea cifrelor scrise de mana si vizualizarea activarii unei retele neuronale."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero card">
+        <div class="hero-copy">
+          <p class="eyebrow">Interactive digit classifier</p>
+          <h1>Neural network</h1>
+          <p class="hero-text">
+            Deseneaza o cifra, iar simulatorul o transforma intr-o imagine de 28x28 si iti arata, in timp real,
+            cum se aprind neuronii dintr-o retea deja antrenata cu arhitectura <strong>784 → 16 → 16 → 10</strong>.
+          </p>
+        </div>
+        <div class="hero-badges">
+          <div class="metric-chip">
+            <span class="metric-label">Model</span>
+            <strong id="model-accuracy">Se incarca...</strong>
+          </div>
+          <div class="metric-chip">
+            <span class="metric-label">Inspiratie</span>
+            <strong>3Blue1Brown style</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="card draw-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">1. Input</p>
+              <h2>Deseneaza cifra</h2>
+            </div>
+            <span class="status-pill" id="input-status">Predictie live</span>
+          </div>
+
+          <div class="draw-stage">
+            <div class="canvas-frame">
+              <canvas id="draw-canvas" width="560" height="560" aria-label="Zona de desen"></canvas>
+              <div class="pixel-grid" aria-hidden="true"></div>
+            </div>
+            <div class="draw-side">
+              <div class="mini-preview">
+                <div class="preview-label">
+                  <span>Versiunea 28x28</span>
+                  <strong>aceasta intra in retea</strong>
+                </div>
+                <canvas id="normalized-canvas" width="28" height="28" aria-label="Input normalizat 28x28"></canvas>
+              </div>
+              <div class="controls">
+                <button class="primary-button" id="clear-button" type="button">Sterge</button>
+                <button class="secondary-button" id="sample-button" type="button">Exemplu MNIST</button>
+              </div>
+              <p class="helper-copy">
+                Traseaza cu mouse-ul sau cu degetul. Simulatorul centreaza automat cifra, exact ca un preprocesor de
+                date pentru MNIST.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card prediction-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">2. Output</p>
+              <h2>Estimarea modelului</h2>
+            </div>
+          </div>
+
+          <div class="prediction-header">
+            <div class="prediction-digit" id="prediction-digit">?</div>
+            <div class="prediction-copy">
+              <p class="confidence-line">Cifra estimata</p>
+              <h3 id="prediction-label">Astept desenul tau</h3>
+              <p class="confidence-line" id="prediction-confidence">Confidenta: 0%</p>
+            </div>
+          </div>
+
+          <div class="probability-bars" id="probability-bars" aria-live="polite"></div>
+
+          <div class="explain-grid">
+            <article class="explain-card">
+              <p class="card-kicker">Layer 1</p>
+              <h3>Pattern detectors</h3>
+              <p>
+                Primul strat invata stroke-uri mici: capete de linie, diagonale, colturi, puncte de start si presiune
+                locala.
+              </p>
+            </article>
+            <article class="explain-card">
+              <p class="card-kicker">Layer 2</p>
+              <h3>Digit parts</h3>
+              <p>
+                Al doilea strat combina pattern-urile in parti mai recognoscibile: bare verticale, bucle, arce,
+                cercuri sau ovale partiale.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="card network-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">3. Visualization</p>
+              <h2>Activarea neuronilor</h2>
+            </div>
+          </div>
+
+          <div class="network-shell">
+            <svg id="network-svg" viewBox="0 0 1100 680" role="img" aria-label="Vizualizare a retelei neuronale"></svg>
+          </div>
+        </section>
+      </main>
+
+      <section class="feature-sections">
+        <section class="card feature-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">4. Learned features</p>
+              <h2>Layer 1: stroke-uri si pattern-uri</h2>
+            </div>
+          </div>
+          <div class="feature-grid" id="feature-grid-layer-1"></div>
+        </section>
+
+        <section class="card feature-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">5. Learned features</p>
+              <h2>Layer 2: parti de cifre</h2>
+            </div>
+          </div>
+          <div class="feature-grid" id="feature-grid-layer-2"></div>
+        </section>
+      </section>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
