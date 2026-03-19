@@ -11,15 +11,15 @@ const INPUT_EDGE_THRESHOLD = 0.055;
 const INPUT_EDGE_MIN_INTENSITY = 0.025;
 
 const COLORS = {
-  ink: [23, 34, 43],
-  muted: [120, 128, 136],
-  bgDark: [8, 22, 29],
-  warm: [255, 138, 72],
-  sun: [242, 160, 61],
-  teal: [29, 159, 138],
-  cool: [87, 121, 255],
-  output: [255, 107, 61],
-  neutral: [211, 214, 218],
+  ink: [23, 37, 90],
+  muted: [92, 103, 136],
+  bgDark: [21, 42, 126],
+  warm: [255, 90, 10],
+  sun: [255, 200, 77],
+  teal: [79, 185, 209],
+  cool: [26, 53, 168],
+  output: [197, 16, 73],
+  neutral: [215, 223, 245],
 };
 
 const state = {
@@ -381,7 +381,7 @@ function buildNetworkSvg() {
       dx: 0,
       dy: 18,
       stdDeviation: 18,
-      "flood-color": "#1d9f8a",
+      "flood-color": "#4fb9d1",
       "flood-opacity": 0.18,
     }),
   );
@@ -415,7 +415,7 @@ function buildNetworkSvg() {
     height: 198,
     rx: 22,
     class: "network-input-frame",
-    fill: "#0b161d",
+    fill: "#152a7e",
     stroke: "rgba(255,255,255,0.12)",
     filter: "url(#input-shadow)",
   });

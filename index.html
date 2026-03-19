@@ -141,10 +141,6 @@
               </div>
             </div>
 
-            <div class="network-shell">
-              <svg id="network-svg" viewBox="0 0 1420 980" role="img" aria-label="Neural network visualization"></svg>
-            </div>
-
             <div class="explain-grid">
               <article class="explain-card">
                 <p class="card-kicker">Layer 1</p>
@@ -162,6 +158,10 @@
                   arcs, circles, bars, and partial ovals.
                 </p>
               </article>
+            </div>
+
+            <div class="network-shell">
+              <svg id="network-svg" viewBox="0 0 1420 980" role="img" aria-label="Neural network visualization"></svg>
             </div>
           </section>
         </main>
@@ -183,7 +183,7 @@
             </div>
           </div>
           <p class="feature-overview-copy">
-            Each thumbnail is a weight map. Bright warm orange in Layer 1 and bright teal in Layer 2 indicate strong
+            Each thumbnail is a weight map. Bright orange in Layer 1 and bright cyan in Layer 2 indicate strong
             positive weights. Cool blue indicates strong negative weights. Very dark regions are close to zero, meaning
             that pixel contributes only weakly to that learned feature.
           </p>
@@ -194,7 +194,7 @@
             </div>
             <div class="legend-item">
               <span class="legend-swatch legend-layer-2"></span>
-              <span>Layer 2 positive weights use teal.</span>
+              <span>Layer 2 positive weights use cyan.</span>
             </div>
             <div class="legend-item">
               <span class="legend-swatch legend-negative"></span>
