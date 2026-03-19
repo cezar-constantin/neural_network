@@ -205,31 +205,22 @@ body::before {
 .dashboard {
   display: grid;
   grid-template-columns: minmax(340px, 1fr) minmax(0, 2fr);
-  grid-template-areas:
-    "input visual"
-    "output visual";
   gap: 22px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .draw-panel,
-.prediction-panel,
 .network-panel,
 .feature-panel,
 .feature-overview {
   padding: 28px;
 }
 
-.draw-panel {
-  grid-area: input;
-}
-
-.prediction-panel {
-  grid-area: output;
-}
-
+.draw-panel,
 .network-panel {
-  grid-area: visual;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .section-heading {
@@ -264,6 +255,8 @@ body::before {
 .draw-stage {
   display: grid;
   gap: 18px;
+  flex: 1;
+  align-content: start;
 }
 
 .canvas-frame {
@@ -439,6 +432,9 @@ body::before {
 }
 
 .network-shell {
+  flex: 1;
+  min-height: 0;
+  padding: 18px;
   border-radius: 26px;
   overflow: auto;
   border: 1px solid rgba(23, 34, 43, 0.12);
@@ -451,6 +447,18 @@ body::before {
     linear-gradient(180deg, rgba(255, 254, 249, 0.98), rgba(255, 245, 224, 0.98));
 }
 
+.network-display {
+  display: grid;
+  gap: 18px;
+}
+
+.network-visual-frame {
+  border-radius: 22px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(23, 34, 43, 0.08);
+}
+
 #network-svg {
   width: 100%;
   display: block;
@@ -460,7 +468,7 @@ body::before {
   margin: 0 0 20px;
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .explain-card {
@@ -474,6 +482,34 @@ body::before {
   margin: 10px 0 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.output-summary-card {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.output-summary-card .prediction-header {
+  margin: 0;
+}
+
+.visual-output-bars {
+  padding: 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(23, 34, 43, 0.1);
+}
+
+.visual-output-bars h3 {
+  margin: 8px 0 6px;
+  font-family: "Fraunces", serif;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.visual-output-bars .confidence-line {
+  margin-bottom: 18px;
 }
 
 .feature-overview-copy {
@@ -651,10 +687,6 @@ body::before {
 @media (max-width: 1260px) {
   .dashboard {
     grid-template-columns: 1fr;
-    grid-template-areas:
-      "input"
-      "output"
-      "visual";
   }
 
   .feature-sections {
@@ -671,7 +703,6 @@ body::before {
 
   .hero,
   .draw-panel,
-  .prediction-panel,
   .network-panel,
   .feature-panel,
   .feature-overview {

@@ -61,7 +61,7 @@ const elements = {
   layer1Grid: document.getElementById("feature-grid-layer-1"),
   layer2Grid: document.getElementById("feature-grid-layer-2"),
   inputStatus: document.getElementById("input-status"),
-  predictionPanel: document.querySelector(".prediction-panel"),
+  outputSummaryCard: document.getElementById("output-summary-card"),
   tabButtons: Array.from(document.querySelectorAll(".tab-button")),
   tabPanels: Array.from(document.querySelectorAll(".tab-panel")),
 };
@@ -955,7 +955,7 @@ function setProbabilityBars(probabilities) {
 }
 
 function setPredictionEmpty() {
-  elements.predictionPanel.classList.add("empty-state");
+  elements.outputSummaryCard.classList.add("empty-state");
   elements.predictionDigit.textContent = "?";
   elements.predictionLabel.textContent = "Waiting for your drawing";
   elements.predictionConfidence.textContent = "Confidence: 0%";
@@ -971,7 +971,7 @@ function setPredictionEmpty() {
 function setPredictionResult(result) {
   const predictedDigit = argmax(result.probabilities);
   const confidence = result.probabilities[predictedDigit];
-  elements.predictionPanel.classList.remove("empty-state");
+  elements.outputSummaryCard.classList.remove("empty-state");
   elements.predictionDigit.textContent = predictedDigit;
   elements.predictionLabel.textContent = `The model most likely sees digit ${predictedDigit}`;
   elements.predictionConfidence.textContent = `Confidence: ${Math.round(confidence * 100)}%`;

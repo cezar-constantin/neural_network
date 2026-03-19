@@ -80,10 +80,7 @@
         <main class="dashboard">
           <section class="card draw-panel">
             <div class="section-heading">
-              <div>
-                <p class="section-kicker">1. Input</p>
-                <h2>Draw a digit</h2>
-              </div>
+              <p class="section-kicker">1. Input</p>
               <span class="status-pill" id="input-status">Live prediction</span>
             </div>
 
@@ -113,32 +110,9 @@
             </div>
           </section>
 
-          <section class="card prediction-panel">
-            <div class="section-heading">
-              <div>
-                <p class="section-kicker">2. Output</p>
-                <h2>Model estimate</h2>
-              </div>
-            </div>
-
-            <div class="prediction-header">
-              <div class="prediction-digit" id="prediction-digit">?</div>
-              <div class="prediction-copy">
-                <p class="confidence-line">Estimated digit</p>
-                <h3 id="prediction-label">Waiting for your drawing</h3>
-                <p class="confidence-line" id="prediction-confidence">Confidence: 0%</p>
-              </div>
-            </div>
-
-            <div class="probability-bars" id="probability-bars" aria-live="polite"></div>
-          </section>
-
           <section class="card network-panel">
             <div class="section-heading">
-              <div>
-                <p class="section-kicker">3. Visualization</p>
-                <h2>Neuron activation</h2>
-              </div>
+              <p class="section-kicker">3. Visualization</p>
             </div>
 
             <div class="explain-grid">
@@ -158,10 +132,33 @@
                   arcs, circles, bars, and partial ovals.
                 </p>
               </article>
+              <article class="explain-card output-summary-card empty-state" id="output-summary-card">
+                <p class="card-kicker">Output</p>
+                <div class="prediction-header">
+                  <div class="prediction-digit" id="prediction-digit">?</div>
+                  <div class="prediction-copy">
+                    <p class="confidence-line">Estimated digit</p>
+                    <h3 id="prediction-label">Waiting for your drawing</h3>
+                    <p class="confidence-line" id="prediction-confidence">Confidence: 0%</p>
+                  </div>
+                </div>
+              </article>
             </div>
 
             <div class="network-shell">
-              <svg id="network-svg" viewBox="0 0 1420 980" role="img" aria-label="Neural network visualization"></svg>
+              <div class="network-display">
+                <div class="network-visual-frame">
+                  <svg id="network-svg" viewBox="0 0 1420 980" role="img" aria-label="Neural network visualization"></svg>
+                </div>
+                <section class="visual-output-bars" aria-label="Output probabilities">
+                  <p class="card-kicker">Output layer</p>
+                  <h3>Digit probabilities</h3>
+                  <p class="confidence-line">
+                    The bars mirror the final 10-neuron output layer and update after every stroke.
+                  </p>
+                  <div class="probability-bars" id="probability-bars" aria-live="polite"></div>
+                </section>
+              </div>
             </div>
           </section>
         </main>
