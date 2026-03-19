@@ -9,9 +9,6 @@ const OUTPUT_SIZE = 10;
 const MAX_INPUT_CONNECTIONS = 120;
 const INPUT_EDGE_THRESHOLD = 0.055;
 const INPUT_EDGE_MIN_INTENSITY = 0.025;
-const MIN_NETWORK_ZOOM = 1;
-const MAX_NETWORK_ZOOM = 2.4;
-const NETWORK_ZOOM_STEP = 0.2;
 
 const COLORS = {
   ink: [23, 37, 90],
@@ -61,16 +58,10 @@ const elements = {
   probabilityBars: document.getElementById("probability-bars"),
   modelAccuracy: document.getElementById("model-accuracy"),
   networkSvg: document.getElementById("network-svg"),
-  networkVisualFrame: document.getElementById("network-visual-frame"),
   layer1Grid: document.getElementById("feature-grid-layer-1"),
   layer2Grid: document.getElementById("feature-grid-layer-2"),
   inputStatus: document.getElementById("input-status"),
   outputSummaryCard: document.getElementById("output-summary-card"),
-  zoomOutButton: document.getElementById("zoom-out-button"),
-  zoomInButton: document.getElementById("zoom-in-button"),
-  zoomResetButton: document.getElementById("zoom-reset-button"),
-  zoomRange: document.getElementById("zoom-range"),
-  zoomValue: document.getElementById("zoom-value"),
   tabButtons: Array.from(document.querySelectorAll(".tab-button")),
   tabPanels: Array.from(document.querySelectorAll(".tab-panel")),
 };
@@ -963,18 +954,6 @@ function setProbabilityBars(probabilities) {
   });
 }
 
-function setNetworkZoom(nextZoom) {
-  const zoom = clamp(nextZoom, MIN_NETWORK_ZOOM, MAX_NETWORK_ZOOM);
-  const percentage = Math.round(zoom * 100);
-
-  elements.networkVisualFrame.style.width = `${percentage}%`;
-  elements.zoomRange.value = String(percentage);
-  elements.zoomValue.textContent = `${percentage}%`;
-  elements.zoomOutButton.disabled = zoom <= MIN_NETWORK_ZOOM + 1e-9;
-  elements.zoomInButton.disabled = zoom >= MAX_NETWORK_ZOOM - 1e-9;
-  elements.zoomResetButton.disabled = Math.abs(zoom - 1) < 1e-9;
-}
-
 function setPredictionEmpty() {
   elements.outputSummaryCard.classList.add("empty-state");
   elements.predictionDigit.textContent = "?";
@@ -1115,28 +1094,6 @@ function setupTabs() {
   });
 }
 
-function setupNetworkZoomControls() {
-  elements.zoomOutButton.addEventListener("click", () => {
-    const nextZoom = Number(elements.zoomRange.value) / 100 - NETWORK_ZOOM_STEP;
-    setNetworkZoom(nextZoom);
-  });
-
-  elements.zoomInButton.addEventListener("click", () => {
-    const nextZoom = Number(elements.zoomRange.value) / 100 + NETWORK_ZOOM_STEP;
-    setNetworkZoom(nextZoom);
-  });
-
-  elements.zoomResetButton.addEventListener("click", () => {
-    setNetworkZoom(1);
-  });
-
-  elements.zoomRange.addEventListener("input", () => {
-    setNetworkZoom(Number(elements.zoomRange.value) / 100);
-  });
-
-  setNetworkZoom(1);
-}
-
 function attachCanvasEvents() {
   elements.drawCanvas.addEventListener("pointerdown", startDrawing);
   elements.drawCanvas.addEventListener("pointermove", continueDrawing);
@@ -1162,7 +1119,6 @@ async function initialize() {
   setupProbabilityBars();
   setupFeatureGrids();
   setupTabs();
-  setupNetworkZoomControls();
   configureDrawContext();
   clearSourceCanvas();
 

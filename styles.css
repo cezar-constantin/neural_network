@@ -454,76 +454,12 @@ body::before {
   gap: 18px;
 }
 
-.network-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(246, 249, 255, 0.94), rgba(237, 243, 255, 0.9));
-  border: 1px solid rgba(163, 180, 235, 0.34);
-}
-
-.zoom-label,
-.zoom-value {
-  font-size: 0.9rem;
-  color: var(--blue-deep);
-}
-
-.zoom-range {
-  width: 140px;
-  accent-color: var(--blue);
-}
-
-.zoom-button,
-.zoom-reset-button {
-  appearance: none;
-  border: 1px solid rgba(163, 180, 235, 0.38);
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--blue-deep);
-  border-radius: 999px;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    transform var(--transition),
-    background var(--transition),
-    border-color var(--transition);
-}
-
-.zoom-button {
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-}
-
-.zoom-reset-button {
-  padding: 8px 14px;
-}
-
-.zoom-button:hover,
-.zoom-reset-button:hover {
-  transform: translateY(-1px);
-  background: white;
-}
-
-.zoom-button:disabled,
-.zoom-reset-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-  transform: none;
-}
-
 .network-visual-frame {
   width: 100%;
   border-radius: 22px;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(237, 243, 255, 0.86));
   border: 1px solid rgba(163, 180, 235, 0.24);
-  transition: width 180ms ease;
 }
 
 #network-svg {
@@ -798,9 +734,6 @@ body::before {
     align-items: flex-start;
   }
 
-  .network-toolbar {
-    justify-content: flex-start;
-  }
 }
 
 @media (max-width: 540px) {
@@ -818,8 +751,4 @@ body::before {
     gap: 8px;
   }
 
-  .zoom-range {
-    width: 100%;
-    min-width: 160px;
-  }
 }
