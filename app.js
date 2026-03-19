@@ -12,6 +12,8 @@ const INPUT_EDGE_MIN_INTENSITY = 0.025;
 const MIN_NETWORK_ZOOM = 1;
 const MAX_NETWORK_ZOOM = 2.4;
 const NETWORK_ZOOM_STEP = 0.2;
+const MOBILE_BREAKPOINT = 860;
+const PHONE_BREAKPOINT = 540;
 
 const COLORS = {
   ink: [23, 37, 90],
@@ -31,6 +33,7 @@ const state = {
   drawing: false,
   lastPoint: null,
   predictionQueued: false,
+  hasUserAdjustedZoom: false,
   featureMapsLayer2: [],
   probabilityRows: [],
   featureCardsLayer1: [],
@@ -198,14 +201,21 @@ function clearSourceCanvas() {
   drawContext.fillRect(0, 0, SOURCE_SIZE, SOURCE_SIZE);
 }
 
+function updateBrushProfile() {
+  const compactViewport = window.innerWidth <= MOBILE_BREAKPOINT;
+  const phoneViewport = window.innerWidth <= PHONE_BREAKPOINT;
+  const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+  drawContext.lineWidth = phoneViewport || coarsePointer ? 40 : compactViewport ? 37 : 34;
+  drawContext.shadowBlur = compactViewport ? 18 : 24;
+}
+
 function configureDrawContext() {
   drawContext.lineCap = "round";
   drawContext.lineJoin = "round";
   drawContext.strokeStyle = "rgba(255, 255, 255, 0.98)";
   drawContext.fillStyle = "rgba(255, 255, 255, 0.98)";
-  drawContext.lineWidth = 34;
-  drawContext.shadowBlur = 24;
   drawContext.shadowColor = "rgba(255, 255, 255, 0.28)";
+  updateBrushProfile();
 }
 
 function setupProbabilityBars() {
@@ -975,6 +985,23 @@ function setNetworkZoom(nextZoom) {
   elements.zoomResetButton.disabled = Math.abs(zoom - 1) < 1e-9;
 }
 
+function getDefaultNetworkZoom() {
+  if (window.innerWidth <= PHONE_BREAKPOINT) {
+    return 1.8;
+  }
+  if (window.innerWidth <= MOBILE_BREAKPOINT) {
+    return 1.35;
+  }
+  return 1;
+}
+
+function syncResponsiveUi(forceZoom = false) {
+  updateBrushProfile();
+  if (forceZoom || !state.hasUserAdjustedZoom) {
+    setNetworkZoom(getDefaultNetworkZoom());
+  }
+}
+
 function setPredictionEmpty() {
   elements.outputSummaryCard.classList.add("empty-state");
   elements.predictionDigit.textContent = "?";
@@ -1117,24 +1144,47 @@ function setupTabs() {
 
 function setupNetworkZoomControls() {
   elements.zoomOutButton.addEventListener("click", () => {
+    state.hasUserAdjustedZoom = true;
     const nextZoom = Number(elements.zoomRange.value) / 100 - NETWORK_ZOOM_STEP;
     setNetworkZoom(nextZoom);
   });
 
   elements.zoomInButton.addEventListener("click", () => {
+    state.hasUserAdjustedZoom = true;
     const nextZoom = Number(elements.zoomRange.value) / 100 + NETWORK_ZOOM_STEP;
     setNetworkZoom(nextZoom);
   });
 
   elements.zoomResetButton.addEventListener("click", () => {
-    setNetworkZoom(1);
+    state.hasUserAdjustedZoom = false;
+    setNetworkZoom(getDefaultNetworkZoom());
   });
 
   elements.zoomRange.addEventListener("input", () => {
+    state.hasUserAdjustedZoom = true;
     setNetworkZoom(Number(elements.zoomRange.value) / 100);
   });
 
-  setNetworkZoom(1);
+  syncResponsiveUi(true);
+}
+
+function setupResponsiveLayout() {
+  let scheduled = false;
+
+  const sync = () => {
+    scheduled = false;
+    syncResponsiveUi();
+  };
+
+  const scheduleSync = () => {
+    if (scheduled) {
+      return;
+    }
+    scheduled = true;
+    requestAnimationFrame(sync);
+  };
+
+  window.addEventListener("resize", scheduleSync, { passive: true });
 }
 
 function attachCanvasEvents() {
@@ -1163,6 +1213,7 @@ async function initialize() {
   setupFeatureGrids();
   setupTabs();
   setupNetworkZoomControls();
+  setupResponsiveLayout();
   configureDrawContext();
   clearSourceCanvas();
 
