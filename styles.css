@@ -506,7 +506,7 @@ body::before {
 
 .connection-line-swatch.is-positive::before {
   height: 4px;
-  background: linear-gradient(90deg, rgba(126, 165, 31, 0.68), rgba(165, 214, 50, 0.96));
+  background: linear-gradient(90deg, rgba(21, 42, 126, 0.7), rgba(26, 53, 168, 0.98));
 }
 
 .connection-line-swatch.is-negative::before {

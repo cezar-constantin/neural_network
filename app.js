@@ -19,6 +19,8 @@ const COLORS = {
   ink: [23, 37, 90],
   muted: [92, 103, 136],
   bgDark: [10, 10, 10],
+  white: [255, 255, 255],
+  blue: [26, 53, 168],
   warm: [165, 214, 50],
   sun: [255, 200, 77],
   teal: [126, 165, 31],
@@ -157,6 +159,13 @@ function toRgba(color, alpha = 1) {
 
 function toRgb(color) {
   return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+}
+
+function getOutputAccent(index) {
+  if (OUTPUT_SIZE <= 1) {
+    return COLORS.output;
+  }
+  return mixColor(COLORS.cool, COLORS.output, index / (OUTPUT_SIZE - 1));
 }
 
 function normalizeLayer(values) {
@@ -353,7 +362,7 @@ function createInputBar(container, { x, y, width, height }) {
     height,
     rx: Math.max(height * 0.45, 0.12),
     class: "network-input-bar",
-    fill: "rgba(211, 214, 218, 0.78)",
+    fill: "#000000",
   });
   container.appendChild(rect);
   return {
@@ -422,10 +431,12 @@ function buildNetworkSvg() {
   createLayerTitle(labelLayer, 1218, "Output", "10 digit probabilities");
 
   createLayerCard(backgroundLayer, 28, 132, 294, 354);
-  createLayerCard(backgroundLayer, 340, 132, 108, 770);
+  const inputLayerCard = createLayerCard(backgroundLayer, 340, 132, 108, 770);
   createLayerCard(backgroundLayer, 496, 132, 224, 770);
   createLayerCard(backgroundLayer, 790, 132, 224, 770);
   createLayerCard(backgroundLayer, 1094, 214, 250, 554);
+  inputLayerCard.setAttribute("fill", "rgba(10, 10, 10, 0.96)");
+  inputLayerCard.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
 
   const inputFrame = createSvgElement("rect", {
     x: 76,
@@ -529,7 +540,7 @@ function buildNetworkSvg() {
       y: outputTop + index * outputGap,
       radius: outputRadius,
       label: index,
-      accent: COLORS.output,
+      accent: getOutputAccent(index),
       valueX: 1224,
     }),
   );
@@ -665,9 +676,9 @@ function setNodeVisual(node, intensity, accent, valueText) {
 }
 
 function setInputBarVisual(bar, intensity) {
-  const fill = mixColor(COLORS.neutral, COLORS.sun, clamp(0.08 + intensity * 0.92, 0, 1));
+  const fill = mixColor(COLORS.bgDark, COLORS.white, clamp(intensity, 0, 1));
   bar.rect.setAttribute("fill", toRgb(fill));
-  bar.rect.setAttribute("opacity", (0.16 + intensity * 0.84).toFixed(3));
+  bar.rect.setAttribute("opacity", "1");
 }
 
 function getActiveInputRows(inputValues) {
@@ -699,7 +710,7 @@ function renderInputToHiddenEdges(inputValues, hidden1Norm) {
       }
 
       const end = state.network.hidden1Nodes[target];
-      const color = weight >= 0 ? COLORS.warm : COLORS.cool;
+      const color = weight >= 0 ? COLORS.blue : COLORS.cool;
       const path = createSvgElement("path", {
         d: buildCurve(start.x + start.width, start.centerY, end.x - end.radius, end.y),
         class: "network-edge",
@@ -730,21 +741,21 @@ function setNetworkState(result) {
     state.network.inputBars.forEach((bar) => setInputBarVisual(bar, 0));
     state.network.hidden1Nodes.forEach((node) => setNodeVisual(node, 0, COLORS.warm, "0%"));
     state.network.hidden2Nodes.forEach((node) => setNodeVisual(node, 0, COLORS.teal, "0%"));
-    state.network.outputNodes.forEach((node) => setNodeVisual(node, 0, COLORS.output, "0%"));
+    state.network.outputNodes.forEach((node, index) => setNodeVisual(node, 0, getOutputAccent(index), "0%"));
     renderInputToHiddenEdges(new Array(INPUT_SIZE).fill(0), new Array(HIDDEN_SIZE).fill(0));
     updateWeightedEdges(
       state.network.hidden12Edges,
       new Array(HIDDEN_SIZE).fill(0),
       new Array(HIDDEN_SIZE).fill(0),
       state.network.maxAbsW2,
-      COLORS.warm,
+      COLORS.blue,
     );
     updateWeightedEdges(
       state.network.hidden23Edges,
       new Array(HIDDEN_SIZE).fill(0),
       new Array(OUTPUT_SIZE).fill(0),
       state.network.maxAbsW3,
-      COLORS.teal,
+      COLORS.blue,
     );
     if (state.network.inputImage) {
       state.network.inputImage.setAttribute("href", "");
@@ -765,12 +776,12 @@ function setNetworkState(result) {
     setNodeVisual(node, hidden2Norm[index], COLORS.teal, `${Math.round(hidden2Norm[index] * 100)}%`),
   );
   state.network.outputNodes.forEach((node, index) =>
-    setNodeVisual(node, probabilities[index], COLORS.output, `${Math.round(probabilities[index] * 100)}%`),
+    setNodeVisual(node, probabilities[index], getOutputAccent(index), `${Math.round(probabilities[index] * 100)}%`),
   );
 
   renderInputToHiddenEdges(inputNorm, hidden1Norm);
-  updateWeightedEdges(state.network.hidden12Edges, hidden1Norm, hidden2Norm, state.network.maxAbsW2, COLORS.warm);
-  updateWeightedEdges(state.network.hidden23Edges, hidden2Norm, probabilities, state.network.maxAbsW3, COLORS.teal);
+  updateWeightedEdges(state.network.hidden12Edges, hidden1Norm, hidden2Norm, state.network.maxAbsW2, COLORS.blue);
+  updateWeightedEdges(state.network.hidden23Edges, hidden2Norm, probabilities, state.network.maxAbsW3, COLORS.blue);
   state.network.inputImage.setAttribute("href", centeredCanvas.toDataURL("image/png"));
 }
 
