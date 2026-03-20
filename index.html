@@ -166,6 +166,30 @@
               Use the zoom controls to inspect the network. On mobile, swipe inside the chart to explore each layer.
             </p>
 
+            <section class="connection-legend" aria-label="Connection line explanation">
+              <article class="connection-legend-item">
+                <span class="connection-line-swatch is-positive" aria-hidden="true"></span>
+                <div class="connection-legend-copy">
+                  <strong>Green lines</strong>
+                  <p>Positive weights push the next neuron upward when the source neuron is active.</p>
+                </div>
+              </article>
+              <article class="connection-legend-item">
+                <span class="connection-line-swatch is-negative" aria-hidden="true"></span>
+                <div class="connection-legend-copy">
+                  <strong>Orange lines</strong>
+                  <p>Negative weights suppress the next neuron and reduce that pathway&apos;s influence.</p>
+                </div>
+              </article>
+              <article class="connection-legend-item">
+                <span class="connection-line-swatch is-visibility" aria-hidden="true"></span>
+                <div class="connection-legend-copy">
+                  <strong>Visibility</strong>
+                  <p>Brighter, thicker lines mean stronger active influence. Faint or missing lines are weak or inactive.</p>
+                </div>
+              </article>
+            </section>
+
             <div class="network-shell">
               <div class="network-display">
                 <div class="network-visual-frame" id="network-visual-frame">
