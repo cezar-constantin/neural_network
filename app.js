@@ -14,6 +14,7 @@ const MAX_NETWORK_ZOOM = 2.4;
 const NETWORK_ZOOM_STEP = 0.2;
 const MOBILE_BREAKPOINT = 860;
 const PHONE_BREAKPOINT = 540;
+const CONTACT_FORM_ENDPOINT = "https://formsubmit.co/ajax/cezar.chirila@helvetic-ai-compass.ch";
 
 const COLORS = {
   ink: [23, 37, 90],
@@ -71,6 +72,13 @@ const elements = {
   layer2Grid: document.getElementById("feature-grid-layer-2"),
   inputStatus: document.getElementById("input-status"),
   outputSummaryCard: document.getElementById("output-summary-card"),
+  contactForm: document.getElementById("contact-form"),
+  contactName: document.getElementById("contact-name"),
+  contactCompany: document.getElementById("contact-company"),
+  contactEmail: document.getElementById("contact-email"),
+  contactQuestion: document.getElementById("contact-question"),
+  contactSubmitButton: document.getElementById("contact-submit-button"),
+  contactStatus: document.getElementById("contact-status"),
   zoomOutButton: document.getElementById("zoom-out-button"),
   zoomInButton: document.getElementById("zoom-in-button"),
   zoomResetButton: document.getElementById("zoom-reset-button"),
@@ -1198,6 +1206,72 @@ function setupResponsiveLayout() {
   window.addEventListener("resize", scheduleSync, { passive: true });
 }
 
+function setContactStatus(message, tone = "") {
+  elements.contactStatus.textContent = message;
+  elements.contactStatus.classList.remove("is-success", "is-error");
+  if (tone) {
+    elements.contactStatus.classList.add(`is-${tone}`);
+  }
+}
+
+async function submitContactForm(event) {
+  event.preventDefault();
+
+  if (!elements.contactForm.reportValidity()) {
+    return;
+  }
+
+  const formData = new FormData(elements.contactForm);
+  const fullName = elements.contactName.value.trim();
+  const company = elements.contactCompany.value.trim();
+  const email = elements.contactEmail.value.trim();
+  const question = elements.contactQuestion.value.trim();
+
+  formData.set("Full name", fullName);
+  formData.set("Company", company || "Not provided");
+  formData.set("Email address", email);
+  formData.set("Question", question);
+  formData.set("_subject", `Neural network simulator question from ${fullName}`);
+  formData.set("_replyto", email);
+  formData.set("_template", "table");
+  formData.set("_captcha", "false");
+  formData.set("_url", window.location.href);
+
+  elements.contactSubmitButton.disabled = true;
+  setContactStatus("Sending question...");
+
+  try {
+    const response = await fetch(CONTACT_FORM_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+      },
+      body: formData,
+    });
+
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok || payload?.success === "false" || payload?.success === false) {
+      throw new Error("Contact form submission failed");
+    }
+
+    setContactStatus("Question sent successfully. You can expect a reply at the address you entered.", "success");
+    elements.contactForm.reset();
+  } catch (error) {
+    console.error(error);
+    setContactStatus(
+      "The form could not be sent right now. Please try again in a moment or email cezar.chirila@helvetic-ai-compass.ch directly.",
+      "error",
+    );
+  } finally {
+    elements.contactSubmitButton.disabled = false;
+  }
+}
+
+function setupContactForm() {
+  elements.contactForm.addEventListener("submit", submitContactForm);
+}
+
 function attachCanvasEvents() {
   elements.drawCanvas.addEventListener("pointerdown", startDrawing);
   elements.drawCanvas.addEventListener("pointermove", continueDrawing);
@@ -1225,6 +1299,7 @@ async function initialize() {
   setupTabs();
   setupNetworkZoomControls();
   setupResponsiveLayout();
+  setupContactForm();
   configureDrawContext();
   clearSourceCanvas();
 

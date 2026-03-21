@@ -295,6 +295,86 @@
           </section>
         </section>
       </section>
+
+      <section class="footer-grid">
+        <section class="card contact-panel">
+          <div class="section-heading section-heading-compact">
+            <div>
+              <p class="section-kicker">Contact</p>
+              <h2>Ask a question directly from the simulator</h2>
+            </div>
+          </div>
+          <p class="contact-intro">
+            Questions are sent directly to
+            <a class="metric-link" href="mailto:cezar.chirila@helvetic-ai-compass.ch">cezar.chirila@helvetic-ai-compass.ch</a>.
+            For more information, visit
+            <a class="metric-link" href="https://www.helvetic-ai-compass.ch/" target="_blank" rel="noreferrer">
+              www.helvetic-ai-compass.ch
+            </a>.
+          </p>
+          <form class="contact-form" id="contact-form">
+            <div class="form-grid">
+              <label class="form-field">
+                <span>Full name</span>
+                <input class="text-input" id="contact-name" name="Full name" type="text" autocomplete="name" required />
+              </label>
+              <label class="form-field">
+                <span>Company</span>
+                <input class="text-input" id="contact-company" name="Company" type="text" autocomplete="organization" />
+              </label>
+              <label class="form-field">
+                <span>Email address</span>
+                <input
+                  class="text-input"
+                  id="contact-email"
+                  name="Email address"
+                  type="email"
+                  autocomplete="email"
+                  required
+                />
+              </label>
+              <label class="form-field form-field-wide">
+                <span>Question</span>
+                <textarea
+                  class="text-area"
+                  id="contact-question"
+                  name="Question"
+                  rows="6"
+                  placeholder="Write your question, context, or teaching use case here."
+                  required
+                ></textarea>
+              </label>
+            </div>
+            <input class="visually-hidden-input" type="text" name="_honey" tabindex="-1" autocomplete="off" />
+            <div class="contact-actions">
+              <button class="primary-button" id="contact-submit-button" type="submit">Send question</button>
+              <p class="contact-status" id="contact-status" aria-live="polite"></p>
+            </div>
+          </form>
+        </section>
+
+        <section class="card disclaimer-panel">
+          <div class="section-heading section-heading-compact">
+            <div>
+              <p class="section-kicker">Disclaimer</p>
+              <h2>Educational use only</h2>
+            </div>
+          </div>
+          <div class="disclaimer-copy">
+            <p>
+              This simulator and all related materials are provided for educational and informational purposes only.
+            </p>
+            <p>
+              They are not intended for commercial use, production deployment, paid services, revenue-generating
+              activities, or commercial decision-making of any kind without prior written permission.
+            </p>
+            <p>
+              The content is provided &quot;as is&quot; without warranties of any kind, express or implied, and should be
+              used only as a teaching, demonstration, and learning resource.
+            </p>
+          </div>
+        </section>
+      </section>
     </div>
 
     <script type="module" src="./app.js"></script>
