@@ -8,6 +8,15 @@
       name="description"
       content="Interactive simulator for handwritten digit recognition and live neural network activation visualization."
     />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RN75RTF8BC"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-RN75RTF8BC");
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -27,19 +36,34 @@
             neurons light up inside a pretrained network with architecture <strong>784 -&gt; 16 -&gt; 16 -&gt; 10</strong>.
           </p>
         </div>
-        <div class="hero-badges">
-          <div class="metric-chip">
-            <span class="metric-label">Model</span>
-            <strong id="model-accuracy">Loading...</strong>
+        <div class="hero-side">
+          <div class="hero-badges">
+            <div class="metric-chip">
+              <span class="metric-label">Model</span>
+              <strong id="model-accuracy">Loading...</strong>
+            </div>
+            <div class="metric-chip">
+              <span class="metric-label">Bibliography</span>
+              <strong>
+                <a class="metric-link" href="https://www.youtube.com/@3blue1brown" target="_blank" rel="noreferrer">
+                  https://www.youtube.com/@3blue1brown
+                </a>
+              </strong>
+            </div>
           </div>
-          <div class="metric-chip">
-            <span class="metric-label">Bibliography</span>
-            <strong>
-              <a class="metric-link" href="https://www.youtube.com/@3blue1brown" target="_blank" rel="noreferrer">
-                https://www.youtube.com/@3blue1brown
-              </a>
-            </strong>
-          </div>
+          <a
+            class="hero-qr"
+            href="https://cezar-constantin.github.io/neural_network/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open the live demo"
+          >
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=https%3A%2F%2Fcezar-constantin.github.io%2Fneural_network%2F"
+              alt="QR code for the live Neural network demo"
+            />
+            <span>Scan on mobile</span>
+          </a>
         </div>
       </header>
 
