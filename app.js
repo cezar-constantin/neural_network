@@ -76,6 +76,7 @@ const elements = {
   contactName: document.getElementById("contact-name"),
   contactCompany: document.getElementById("contact-company"),
   contactEmail: document.getElementById("contact-email"),
+  contactTopic: document.getElementById("contact-topic"),
   contactQuestion: document.getElementById("contact-question"),
   contactSubmitButton: document.getElementById("contact-submit-button"),
   contactStatus: document.getElementById("contact-status"),
@@ -1225,11 +1226,13 @@ async function submitContactForm(event) {
   const fullName = elements.contactName.value.trim();
   const company = elements.contactCompany.value.trim();
   const email = elements.contactEmail.value.trim();
+  const topic = elements.contactTopic.value.trim();
   const question = elements.contactQuestion.value.trim();
 
   formData.set("Full name", fullName);
   formData.set("Company", company || "Not provided");
   formData.set("Email address", email);
+  formData.set("Question topic", topic || "General question");
   formData.set("Question", question);
   formData.set("_subject", `Neural network simulator question from ${fullName}`);
   formData.set("_replyto", email);

@@ -298,15 +298,14 @@
 
       <section class="footer-grid">
         <section class="card contact-panel">
-          <div class="section-heading section-heading-compact">
-            <div>
+          <div class="contact-header">
+            <div class="contact-header-copy">
               <p class="section-kicker">Contact</p>
               <h2>Ask a question directly from the simulator</h2>
             </div>
+            <span class="contact-badge">In-platform contact form</span>
           </div>
           <p class="contact-intro">
-            Questions are sent directly to
-            <a class="metric-link" href="mailto:cezar.chirila@helvetic-ai-compass.ch">cezar.chirila@helvetic-ai-compass.ch</a>.
             For more information, visit
             <a class="metric-link" href="https://www.helvetic-ai-compass.ch/" target="_blank" rel="noreferrer">
               www.helvetic-ai-compass.ch
@@ -314,16 +313,16 @@
           </p>
           <form class="contact-form" id="contact-form">
             <div class="form-grid">
-              <label class="form-field">
-                <span>Full name</span>
+              <label class="form-card">
+                <span class="form-label">Full name</span>
                 <input class="text-input" id="contact-name" name="Full name" type="text" autocomplete="name" required />
               </label>
-              <label class="form-field">
-                <span>Company</span>
+              <label class="form-card">
+                <span class="form-label">Company</span>
                 <input class="text-input" id="contact-company" name="Company" type="text" autocomplete="organization" />
               </label>
-              <label class="form-field">
-                <span>Email address</span>
+              <label class="form-card">
+                <span class="form-label">Email address</span>
                 <input
                   class="text-input"
                   id="contact-email"
@@ -333,8 +332,18 @@
                   required
                 />
               </label>
-              <label class="form-field form-field-wide">
-                <span>Question</span>
+              <label class="form-card">
+                <span class="form-label">Question topic</span>
+                <input
+                  class="text-input"
+                  id="contact-topic"
+                  name="Question topic"
+                  type="text"
+                  placeholder="Teaching use case, simulator support, methodology..."
+                />
+              </label>
+              <label class="form-card form-card-wide">
+                <span class="form-label">Question</span>
                 <textarea
                   class="text-area"
                   id="contact-question"
@@ -354,23 +363,28 @@
         </section>
 
         <section class="card disclaimer-panel">
-          <div class="section-heading section-heading-compact">
-            <div>
+          <div class="contact-header">
+            <div class="contact-header-copy">
               <p class="section-kicker">Disclaimer</p>
               <h2>Educational use only</h2>
             </div>
+            <span class="contact-badge">Non-commercial material</span>
           </div>
           <div class="disclaimer-copy">
             <p>
-              This simulator and all related materials are provided for educational and informational purposes only.
+              The materials, models, code, methodologies, outputs, and visualizations made available through this
+              simulator are provided solely for educational, training, and illustrative purposes.
             </p>
             <p>
-              They are not intended for commercial use, production deployment, paid services, revenue-generating
-              activities, or commercial decision-making of any kind without prior written permission.
+              They do not constitute legal, regulatory, accounting, audit, tax, investment, model risk management,
+              credit risk, or any other professional advice, and they must not be relied upon for production,
+              commercial, client-facing, regulatory, or other business-critical use cases.
             </p>
             <p>
-              The content is provided &quot;as is&quot; without warranties of any kind, express or implied, and should be
-              used only as a teaching, demonstration, and learning resource.
+              No representation or warranty, express or implied, is made as to the accuracy, completeness, fitness for
+              purpose, or regulatory suitability of the content. Any commercial exploitation or operational deployment
+              is strictly prohibited unless independently validated and reviewed by appropriately qualified professionals
+              under the relevant governance framework.
             </p>
           </div>
         </section>
