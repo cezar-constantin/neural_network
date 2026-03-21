@@ -296,35 +296,36 @@
         </section>
       </section>
 
-      <section class="footer-grid">
-        <section class="card contact-panel">
-          <div class="contact-header">
-            <div class="contact-header-copy">
+      <section class="footer-panel-grid" aria-label="Support and disclaimer">
+        <section class="card support-card">
+          <div class="section-heading">
+            <div>
               <p class="section-kicker">Contact</p>
               <h2>Ask a question directly from the simulator</h2>
             </div>
-            <span class="contact-badge">In-platform contact form</span>
+            <span class="status-pill">In-platform contact form</span>
           </div>
-          <p class="contact-intro">
+          <p class="helper-copy contact-copy">
             For more information, visit
-            <a class="metric-link" href="https://www.helvetic-ai-compass.ch/" target="_blank" rel="noreferrer">
-              www.helvetic-ai-compass.ch
-            </a>.
+            <a href="https://www.helvetic-ai-compass.ch/" target="_blank" rel="noreferrer">www.helvetic-ai-compass.ch</a>.
           </p>
-          <form class="contact-form" id="contact-form">
-            <div class="form-grid">
-              <label class="form-card">
-                <span class="form-label">Full name</span>
-                <input class="text-input" id="contact-name" name="Full name" type="text" autocomplete="name" required />
+
+          <form class="support-form" id="contact-form" novalidate>
+            <div class="panel-subgrid two-up">
+              <label class="field-card" for="contact-name">
+                <span class="field-label">Full name</span>
+                <input class="field-input" id="contact-name" name="Full name" type="text" autocomplete="name" required />
               </label>
-              <label class="form-card">
-                <span class="form-label">Company</span>
-                <input class="text-input" id="contact-company" name="Company" type="text" autocomplete="organization" />
+
+              <label class="field-card" for="contact-company">
+                <span class="field-label">Company</span>
+                <input class="field-input" id="contact-company" name="Company" type="text" autocomplete="organization" />
               </label>
-              <label class="form-card">
-                <span class="form-label">Email address</span>
+
+              <label class="field-card" for="contact-email">
+                <span class="field-label">Email address</span>
                 <input
-                  class="text-input"
+                  class="field-input"
                   id="contact-email"
                   name="Email address"
                   type="email"
@@ -332,61 +333,63 @@
                   required
                 />
               </label>
-              <label class="form-card">
-                <span class="form-label">Question topic</span>
+
+              <label class="field-card" for="contact-topic">
+                <span class="field-label">Question topic</span>
                 <input
-                  class="text-input"
+                  class="field-input"
                   id="contact-topic"
                   name="Question topic"
                   type="text"
                   placeholder="Teaching use case, simulator support, methodology..."
                 />
               </label>
-              <label class="form-card form-card-wide">
-                <span class="form-label">Question</span>
-                <textarea
-                  class="text-area"
-                  id="contact-question"
-                  name="Question"
-                  rows="6"
-                  placeholder="Write your question, context, or teaching use case here."
-                  required
-                ></textarea>
-              </label>
             </div>
+
+            <label class="field-card" for="contact-question">
+              <span class="field-label">Question</span>
+              <textarea
+                class="editor-textarea contact-textarea"
+                id="contact-question"
+                name="Question"
+                rows="6"
+                placeholder="Write your question, context, or teaching use case here."
+                required
+              ></textarea>
+            </label>
+
             <input class="visually-hidden-input" type="text" name="_honey" tabindex="-1" autocomplete="off" />
-            <div class="contact-actions">
+
+            <div class="contact-form-actions">
               <button class="primary-button" id="contact-submit-button" type="submit">Send question</button>
               <p class="contact-status" id="contact-status" aria-live="polite"></p>
             </div>
           </form>
         </section>
 
-        <section class="card disclaimer-panel">
-          <div class="contact-header">
-            <div class="contact-header-copy">
+        <section class="card disclaimer-card">
+          <div class="section-heading">
+            <div>
               <p class="section-kicker">Disclaimer</p>
               <h2>Educational use only</h2>
             </div>
-            <span class="contact-badge">Non-commercial material</span>
+            <span class="status-pill">Non-commercial material</span>
           </div>
-          <div class="disclaimer-copy">
-            <p>
-              The materials, models, code, methodologies, outputs, and visualizations made available through this
-              simulator are provided solely for educational, training, and illustrative purposes.
-            </p>
-            <p>
-              They do not constitute legal, regulatory, accounting, audit, tax, investment, model risk management,
-              credit risk, or any other professional advice, and they must not be relied upon for production,
-              commercial, client-facing, regulatory, or other business-critical use cases.
-            </p>
-            <p>
-              No representation or warranty, express or implied, is made as to the accuracy, completeness, fitness for
-              purpose, or regulatory suitability of the content. Any commercial exploitation or operational deployment
-              is strictly prohibited unless independently validated and reviewed by appropriately qualified professionals
-              under the relevant governance framework.
-            </p>
-          </div>
+          <p class="helper-copy">
+            The materials, models, code, methodologies, outputs, and visualizations made available through this
+            simulator are provided solely for educational, training, and illustrative purposes.
+          </p>
+          <p class="helper-copy">
+            They do not constitute legal, regulatory, accounting, audit, tax, investment, model risk management,
+            credit risk, or any other professional advice, and they must not be relied upon for production,
+            commercial, client-facing, regulatory, or other business-critical use cases.
+          </p>
+          <p class="helper-copy">
+            No representation or warranty, express or implied, is made as to the accuracy, completeness, fitness for
+            purpose, or regulatory suitability of the content. Any commercial exploitation or operational deployment is
+            strictly prohibited unless independently validated and reviewed by appropriately qualified professionals
+            under the relevant governance framework.
+          </p>
         </section>
       </section>
     </div>
