@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Neural Network Explorer | Cezar Constantin</title>
+    <title>Neural network</title>
     <meta
       name="description"
-      content="Hosted neural network explorer for handwritten digit recognition with live activation visualization."
+      content="Interactive simulator for handwritten digit recognition and live neural network activation visualization."
     />
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-RN75RTF8BC"></script>
     <script>
@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
@@ -29,41 +29,12 @@
     <div class="page-shell">
       <header class="hero card">
         <div class="hero-copy">
-          <div class="hero-topline">
-            <a
-              class="brand-link"
-              href="https://www.cezar-constantin-chirila.ch/portfolio/neural-network/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Portfolio page
-            </a>
-            <span class="hero-hosted-label">Hosted AI solution</span>
-          </div>
-          <p class="eyebrow">Interactive neural network explorer</p>
-          <h1>Neural Network Explorer</h1>
+          <p class="eyebrow">Interactive digit classifier</p>
+          <h1>Neural network</h1>
           <p class="hero-text">
-            Draw a digit and watch the simulator convert it into a 28x28 image while showing, in real time, how a
-            pretrained network with architecture <strong>784 -&gt; 16 -&gt; 16 -&gt; 10</strong> responds layer by layer.
+            Draw a digit, and the simulator will convert it into a 28x28 image while showing, in real time, how the
+            neurons light up inside a pretrained network with architecture <strong>784 -&gt; 16 -&gt; 16 -&gt; 10</strong>.
           </p>
-          <div class="hero-actions">
-            <a
-              class="hero-link"
-              href="https://www.cezar-constantin-chirila.ch/portfolio/neural-network/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Visit portfolio page
-            </a>
-            <a
-              class="hero-link is-secondary"
-              href="https://github.com/cezar-constantin/neural_network"
-              target="_blank"
-              rel="noreferrer"
-            >
-              View GitHub repo
-            </a>
-          </div>
         </div>
         <div class="hero-side">
           <div class="hero-badges">
@@ -72,15 +43,10 @@
               <strong id="model-accuracy">Loading...</strong>
             </div>
             <div class="metric-chip">
-              <span class="metric-label">Source code</span>
+              <span class="metric-label">Bibliography</span>
               <strong>
-                <a
-                  class="metric-link"
-                  href="https://github.com/cezar-constantin/neural_network"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  github.com/cezar-constantin/neural_network
+                <a class="metric-link" href="https://www.youtube.com/@3blue1brown" target="_blank" rel="noreferrer">
+                  https://www.youtube.com/@3blue1brown
                 </a>
               </strong>
             </div>
@@ -96,7 +62,7 @@
               src="https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=https%3A%2F%2Fcezar-constantin.github.io%2Fneural_network%2F"
               alt="QR code for the live Neural network demo"
             />
-            <span>Scan for live demo</span>
+            <span>Scan on mobile</span>
           </a>
         </div>
       </header>
@@ -283,18 +249,18 @@
             </div>
           </div>
           <p class="feature-overview-copy">
-            Each thumbnail is a weight map. Cyan in Layer 1 and blue in Layer 2 indicate strong positive weights.
-            Orange indicates strong negative weights. Dark regions are close to zero, meaning that a pixel contributes
-            only weakly to that learned feature.
+            Each thumbnail is a weight map. Bright green in Layer 1 and deeper green in Layer 2 indicate strong
+            positive weights. Orange indicates strong negative weights. Black regions are close to zero, meaning that
+            pixel contributes only weakly to that learned feature.
           </p>
           <div class="legend-grid">
             <div class="legend-item">
               <span class="legend-swatch legend-layer-1"></span>
-              <span>Layer 1 positive weights use cyan.</span>
+              <span>Layer 1 positive weights use bright green.</span>
             </div>
             <div class="legend-item">
               <span class="legend-swatch legend-layer-2"></span>
-              <span>Layer 2 positive weights use blue.</span>
+              <span>Layer 2 positive weights use deeper green.</span>
             </div>
             <div class="legend-item">
               <span class="legend-swatch legend-negative"></span>
@@ -302,7 +268,7 @@
             </div>
             <div class="legend-item">
               <span class="legend-swatch legend-neutral"></span>
-              <span>Dark areas are near zero and contribute little.</span>
+              <span>Black areas are near zero and contribute little.</span>
             </div>
           </div>
         </section>
@@ -341,9 +307,7 @@
           </div>
           <p class="helper-copy contact-copy">
             For more information, visit
-            <a href="https://www.cezar-constantin-chirila.ch/" target="_blank" rel="noreferrer">
-              www.cezar-constantin-chirila.ch
-            </a>.
+            <a href="https://www.cezar-chirila.com/" target="_blank" rel="noreferrer">www.cezar-chirila.com</a>.
           </p>
 
           <form class="support-form" id="contact-form" novalidate>

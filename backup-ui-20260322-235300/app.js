@@ -17,17 +17,17 @@ const PHONE_BREAKPOINT = 540;
 const CONTACT_FORM_ENDPOINT = "https://formsubmit.co/ajax/contact@cezar-chirila.com";
 
 const COLORS = {
-  ink: [226, 232, 240],
-  muted: [148, 163, 184],
-  bgDark: [12, 15, 23],
-  white: [248, 250, 252],
-  blue: [59, 130, 246],
-  warm: [34, 211, 238],
-  sun: [251, 191, 36],
-  teal: [96, 165, 250],
-  cool: [249, 115, 22],
-  output: [56, 189, 248],
-  neutral: [30, 41, 59],
+  ink: [23, 37, 90],
+  muted: [92, 103, 136],
+  bgDark: [10, 10, 10],
+  white: [255, 255, 255],
+  blue: [26, 53, 168],
+  warm: [165, 214, 50],
+  sun: [255, 200, 77],
+  teal: [126, 165, 31],
+  cool: [255, 90, 10],
+  output: [197, 16, 73],
+  neutral: [215, 223, 245],
 };
 
 const state = {
@@ -325,8 +325,8 @@ function createLayerCard(container, x, y, width, height) {
     height,
     rx: 28,
     class: "network-layer-card",
-    fill: "rgba(13, 16, 25, 0.94)",
-    stroke: "rgba(255, 255, 255, 0.08)",
+    fill: "rgba(255,255,255,0.58)",
+    stroke: "rgba(23, 34, 43, 0.12)",
   });
   container.appendChild(card);
   return card;
@@ -339,7 +339,7 @@ function createValueNode(container, { x, y, radius, label, accent, valueX }) {
     cy: y,
     r: radius,
     class: "network-node-circle",
-    fill: "rgba(30, 41, 59, 0.92)",
+    fill: "rgba(211, 214, 218, 0.85)",
     stroke: toRgba(accent, 0.35),
     "stroke-width": 2,
   });
@@ -418,7 +418,7 @@ function buildNetworkSvg() {
       dx: 0,
       dy: 18,
       stdDeviation: 18,
-      "flood-color": "#22d3ee",
+      "flood-color": "#4fb9d1",
       "flood-opacity": 0.18,
     }),
   );
@@ -444,7 +444,7 @@ function buildNetworkSvg() {
   createLayerCard(backgroundLayer, 496, 132, 224, 770);
   createLayerCard(backgroundLayer, 790, 132, 224, 770);
   createLayerCard(backgroundLayer, 1094, 214, 250, 554);
-  inputLayerCard.setAttribute("fill", "rgba(13, 16, 25, 0.98)");
+  inputLayerCard.setAttribute("fill", "rgba(10, 10, 10, 0.96)");
   inputLayerCard.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
 
   const inputFrame = createSvgElement("rect", {
@@ -454,8 +454,8 @@ function buildNetworkSvg() {
     height: 198,
     rx: 22,
     class: "network-input-frame",
-    fill: "#0d1019",
-    stroke: "rgba(255,255,255,0.14)",
+    fill: "#152a7e",
+    stroke: "rgba(255,255,255,0.12)",
     filter: "url(#input-shadow)",
   });
 
@@ -568,7 +568,7 @@ function buildNetworkSvg() {
         start.y,
         end.x - end.radius,
         end.y,
-        "rgba(148, 163, 184, 0.08)",
+        "rgba(23, 34, 43, 0.08)",
         1,
         0.22,
       );
@@ -591,7 +591,7 @@ function buildNetworkSvg() {
         start.y,
         end.x - end.radius,
         end.y,
-        "rgba(148, 163, 184, 0.08)",
+        "rgba(23, 34, 43, 0.08)",
         1,
         0.22,
       );
