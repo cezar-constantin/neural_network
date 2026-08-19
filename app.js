@@ -327,7 +327,7 @@ function createLayerCard(container, x, y, width, height) {
     height,
     rx: 8,
     class: "network-layer-card",
-    fill: "rgba(12, 24, 38, 0.94)",
+    fill: "rgba(255, 255, 255, 0.05)",
     stroke: "rgba(255, 255, 255, 0.12)",
   });
   container.appendChild(card);
@@ -446,7 +446,7 @@ function buildNetworkSvg() {
   createLayerCard(backgroundLayer, 496, 132, 224, 770);
   createLayerCard(backgroundLayer, 790, 132, 224, 770);
   createLayerCard(backgroundLayer, 1094, 214, 250, 554);
-  inputLayerCard.setAttribute("fill", "rgba(12, 24, 38, 0.98)");
+  inputLayerCard.setAttribute("fill", "rgba(255, 255, 255, 0.05)");
   inputLayerCard.setAttribute("stroke", "rgba(255, 255, 255, 0.12)");
 
   const inputFrame = createSvgElement("rect", {
@@ -1295,7 +1295,9 @@ async function loadModel() {
   const payload = await response.json();
   state.model = prepareModel(payload);
   state.featureMapsLayer2 = projectLayerTwoFeatures(state.model);
-  elements.modelAccuracy.textContent = `${Math.round(payload.metrics.testAccuracy * 100)}% on ${payload.metrics.testSamples} test samples`;
+  if (elements.modelAccuracy) {
+    elements.modelAccuracy.textContent = `${Math.round(payload.metrics.testAccuracy * 100)}% on ${payload.metrics.testSamples} test samples`;
+  }
 }
 
 async function initialize() {
@@ -1316,7 +1318,9 @@ async function initialize() {
     attachCanvasEvents();
     setPredictionEmpty();
   } catch (error) {
-    elements.modelAccuracy.textContent = "Model failed to load";
+    if (elements.modelAccuracy) {
+      elements.modelAccuracy.textContent = "Model failed to load";
+    }
     elements.inputStatus.textContent = "Initialization error";
     elements.predictionLabel.textContent = "Model is missing";
     elements.predictionConfidence.textContent = "Check the files inside the model/ folder";
