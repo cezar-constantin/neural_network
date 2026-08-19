@@ -16,18 +16,20 @@ const MOBILE_BREAKPOINT = 860;
 const PHONE_BREAKPOINT = 540;
 const CONTACT_FORM_ENDPOINT = "https://formsubmit.co/ajax/contact@cezar-chirila.com";
 
+// Palette aligned with unit8.com
+// #1343F0 primary blue · #00FFFF cyan · #000114 navy · #0C1826 surface · #F3F3F3 text
 const COLORS = {
-  ink: [226, 232, 240],
-  muted: [148, 163, 184],
-  bgDark: [12, 15, 23],
-  white: [248, 250, 252],
-  blue: [59, 130, 246],
-  warm: [34, 211, 238],
-  sun: [251, 191, 36],
-  teal: [96, 165, 250],
-  cool: [249, 115, 22],
-  output: [56, 189, 248],
-  neutral: [30, 41, 59],
+  ink: [243, 243, 243], // #f3f3f3
+  muted: [143, 147, 166], // #8f93a6
+  bgDark: [0, 1, 20], // #000114
+  white: [255, 255, 255],
+  blue: [19, 67, 240], // #1343f0 — positive weights
+  warm: [0, 255, 255], // #00ffff — hidden layer 1 accent
+  sun: [0, 255, 255],
+  teal: [56, 99, 255], // #3863ff — hidden layer 2 accent
+  cool: [255, 92, 31], // #ff5c1f — negative weights
+  output: [0, 255, 255], // #00ffff — top of the output ramp
+  neutral: [16, 20, 43], // #10142b — inactive node fill
 };
 
 const state = {
@@ -174,7 +176,7 @@ function getOutputAccent(index) {
   if (OUTPUT_SIZE <= 1) {
     return COLORS.output;
   }
-  return mixColor(COLORS.cool, COLORS.output, index / (OUTPUT_SIZE - 1));
+  return mixColor(COLORS.blue, COLORS.output, index / (OUTPUT_SIZE - 1));
 }
 
 function normalizeLayer(values) {
@@ -323,10 +325,10 @@ function createLayerCard(container, x, y, width, height) {
     y,
     width,
     height,
-    rx: 28,
+    rx: 8,
     class: "network-layer-card",
-    fill: "rgba(13, 16, 25, 0.94)",
-    stroke: "rgba(255, 255, 255, 0.08)",
+    fill: "rgba(12, 24, 38, 0.94)",
+    stroke: "rgba(255, 255, 255, 0.12)",
   });
   container.appendChild(card);
   return card;
@@ -339,7 +341,7 @@ function createValueNode(container, { x, y, radius, label, accent, valueX }) {
     cy: y,
     r: radius,
     class: "network-node-circle",
-    fill: "rgba(30, 41, 59, 0.92)",
+    fill: "rgba(16, 20, 43, 0.92)",
     stroke: toRgba(accent, 0.35),
     "stroke-width": 2,
   });
@@ -418,7 +420,7 @@ function buildNetworkSvg() {
       dx: 0,
       dy: 18,
       stdDeviation: 18,
-      "flood-color": "#22d3ee",
+      "flood-color": "#00ffff",
       "flood-opacity": 0.18,
     }),
   );
@@ -444,17 +446,17 @@ function buildNetworkSvg() {
   createLayerCard(backgroundLayer, 496, 132, 224, 770);
   createLayerCard(backgroundLayer, 790, 132, 224, 770);
   createLayerCard(backgroundLayer, 1094, 214, 250, 554);
-  inputLayerCard.setAttribute("fill", "rgba(13, 16, 25, 0.98)");
-  inputLayerCard.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
+  inputLayerCard.setAttribute("fill", "rgba(12, 24, 38, 0.98)");
+  inputLayerCard.setAttribute("stroke", "rgba(255, 255, 255, 0.12)");
 
   const inputFrame = createSvgElement("rect", {
     x: 76,
     y: 182,
     width: 198,
     height: 198,
-    rx: 22,
+    rx: 8,
     class: "network-input-frame",
-    fill: "#0d1019",
+    fill: "#000114",
     stroke: "rgba(255,255,255,0.14)",
     filter: "url(#input-shadow)",
   });
@@ -568,7 +570,7 @@ function buildNetworkSvg() {
         start.y,
         end.x - end.radius,
         end.y,
-        "rgba(148, 163, 184, 0.08)",
+        "rgba(255, 255, 255, 0.07)",
         1,
         0.22,
       );
@@ -591,7 +593,7 @@ function buildNetworkSvg() {
         start.y,
         end.x - end.radius,
         end.y,
-        "rgba(148, 163, 184, 0.08)",
+        "rgba(255, 255, 255, 0.07)",
         1,
         0.22,
       );
